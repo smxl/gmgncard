@@ -32,6 +32,24 @@ export class UserService {
     return this.repo.listFeatured(limit);
   }
 
+  async listPlaza(limit = 20) {
+    const all = await this.repo.listPublic(limit);
+    return all.sort((a, b) => {
+      const aAd = Boolean(a.adLabel);
+      const bAd = Boolean(b.adLabel);
+      if (aAd !== bAd) {
+        return aAd ? -1 : 1;
+      }
+      const aFeatured = Boolean(a.isFeatured);
+      const bFeatured = Boolean(b.isFeatured);
+      if (aFeatured !== bFeatured) {
+        return aFeatured ? -1 : 1;
+      }
+      return (b.profile?.updatedAt ? Date.parse(b.profile.updatedAt) : 0) -
+        (a.profile?.updatedAt ? Date.parse(a.profile.updatedAt) : 0);
+    });
+  }
+
   async getByHandle(handle: string) {
     const user = await this.repo.findByHandle(handle);
     if (!user) {

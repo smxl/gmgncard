@@ -84,6 +84,19 @@ export class UserRepository {
     return rows.map((row) => this.toUserDto(row, linksByUser.get(row.user.id ?? -1)));
   }
 
+  async listPublic(limit = 50) {
+    const rows = await this.db
+      .select({ user: users, profile: userProfiles })
+      .from(users)
+      .leftJoin(userProfiles, eq(userProfiles.userId, users.id))
+      .orderBy(desc(users.isFeatured), desc(users.updatedAt))
+      .limit(limit);
+
+    const userIds = rows.map((row) => row.user.id!).filter(Boolean);
+    const linksByUser = await this.loadLinksForUsers(userIds);
+    return rows.map((row) => this.toUserDto(row, linksByUser.get(row.user.id ?? -1)));
+  }
+
   async findByHandle(handle: string) {
     const rows = await this.db
       .select({

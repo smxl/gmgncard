@@ -11,9 +11,9 @@ export const registerPlazaRoutes = (router: Hono<AppBindings>) => {
   router.get('/plaza', async (c) => {
     const limit = Number.parseInt(c.req.query('limit') ?? '12', 10);
     const service = getService(c.env);
-    const featured = await service.listFeatured(
+    const users = await service.listPlaza(
       Number.isFinite(limit) && limit > 0 ? limit : 12
     );
-    return withRequestMeta(c, featured);
+    return withRequestMeta(c, users);
   });
 };
