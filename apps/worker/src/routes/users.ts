@@ -12,8 +12,9 @@ export const registerUserRoutes = (router: Hono<AppBindings>) => {
   router.get('/users', async (c) => {
     const requestedLimit = Number.parseInt(c.req.query('limit') ?? '', 10);
     const limit = Number.isFinite(requestedLimit) && requestedLimit > 0 ? requestedLimit : undefined;
+    const status = c.req.query('status');
     const service = getService(c.env);
-    const result = await service.list(limit);
+    const result = await service.list(limit, status);
 
     return withRequestMeta(
       c,

@@ -7,6 +7,7 @@ import { LinksPanel } from '../components/LinksPanel';
 import { ReportsPanel } from '../components/ReportsPanel';
 import { SelfLinksPanel } from '../components/SelfLinksPanel';
 import { SelfProfilePanel } from '../components/SelfProfilePanel';
+import { PendingProfilesPanel } from '../components/PendingProfilesPanel';
 import { useAuth } from '../stores/auth';
 
 const App = () => {
@@ -23,6 +24,7 @@ const App = () => {
       {isAdmin ? (
         <>
           <UsersPanel />
+          <PendingProfilesPanel />
           <LinksPanel />
           <ReportsPanel />
         </>

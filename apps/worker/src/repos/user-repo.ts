@@ -53,6 +53,23 @@ export class UserRepository {
     );
   }
 
+  async listPending(limit = 20) {
+    const rows = await this.db
+      .select({ user: users, profile: userProfiles })
+      .from(users)
+      .leftJoin(userProfiles, eq(userProfiles.userId, users.id))
+      .where(eq(userProfiles.verificationStatus, 'pending'))
+      .orderBy(desc(userProfiles.updatedAt))
+      .limit(limit);
+
+    const userIds = rows.map((row) => row.user.id!).filter(Boolean);
+    const linksByUser = await this.loadLinksForUsers(userIds);
+
+    return rows.map((row) =>
+      this.toUserDto(row, linksByUser.get(row.user.id ?? -1))
+    );
+  }
+
   async listFeatured(limit = 12) {
     const rows = await this.db
       .select({ user: users, profile: userProfiles })

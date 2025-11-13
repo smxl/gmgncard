@@ -13,9 +13,12 @@ import { HttpError } from '../utils/errors';
 export class UserService {
   constructor(private readonly repo: UserRepository) {}
 
-  async list(limit = 20): Promise<PaginatedResult<UserDTO>> {
+  async list(limit = 20, status?: string): Promise<PaginatedResult<UserDTO>> {
     const safeLimit = Math.min(Math.max(limit, 1), 50);
-    const users = await this.repo.listUsers(safeLimit);
+    const users =
+      status === 'pending'
+        ? await this.repo.listPending(safeLimit)
+        : await this.repo.listUsers(safeLimit);
 
     return {
       items: users,
