@@ -1,0 +1,19 @@
+name = "gmgncard-worker"
+main = "../apps/worker/src/index.ts"
+compatibility_date = "2024-06-20"
+
+[vars]
+ENV = "development"
+
+[[d1_databases]]
+binding = "GMGNCARD_DB"
+database_name = "gmgncard-db"
+database_id = "00000000-0000-0000-0000-000000000000"
+
+[[kv_namespaces]]
+binding = "GMGNCARD_KV"
+id = "00000000000000000000000000000000"
+
+[[r2_buckets]]
+binding = "GMGNCARD_R2"
+bucket_name = "gmgncard-r2"

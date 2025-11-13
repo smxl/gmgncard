@@ -1,0 +1,14 @@
+{
+  "name": "gmgncard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev:worker": "pnpm --filter @gmgncard/worker dev",
+    "dev:admin": "pnpm --filter @gmgncard/admin dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "format": "pnpm -r format --if-present",
+    "test": "pnpm -r test --if-present",
+    "smoke": "node scripts/smoke.mjs"
+  }
+}

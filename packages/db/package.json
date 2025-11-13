@@ -1,0 +1,26 @@
+{
+  "name": "@gmgncard/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    },
+    "./schema": "./src/schema.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json --emitDeclarationOnly",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "migrations:generate": "drizzle-kit generate --config drizzle.config.ts"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.31.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "drizzle-kit": "^0.25.0",
+    "typescript": "^5.5.4"
+  }
+}

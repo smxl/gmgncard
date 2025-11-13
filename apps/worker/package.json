@@ -1,0 +1,24 @@
+{
+  "name": "@gmgncard/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --config ../../infra/wrangler.toml",
+    "build": "wrangler build --config ../../infra/wrangler.toml",
+    "lint": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@gmgncard/config": "workspace:*",
+    "@gmgncard/db": "workspace:*",
+    "@gmgncard/types": "workspace:*",
+    "drizzle-orm": "^0.31.1",
+    "hono": "^4.4.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240620.0",
+    "typescript": "^5.5.4",
+    "wrangler": "^4.47.0"
+  }
+}
