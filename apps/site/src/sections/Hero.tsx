@@ -1,9 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { RegisterDialog } from '../components/RegisterDialog';
 
 const gradients = ['from-indigo-500 via-sky-500 to-emerald-400', 'from-purple-600 via-pink-500 to-orange-400'];
 
 export const Hero = () => {
   const gradient = useMemo(() => gradients[Math.floor(Math.random() * gradients.length)], []);
+  const [showDialog, setShowDialog] = useState(false);
 
   return (
     <header className="relative overflow-hidden">
@@ -20,21 +22,21 @@ export const Hero = () => {
           一站式 Worker + Pages 方案，原生支持二维码验证、微信/群资料、举报审核、R2 多媒体存储。让运营团队无需自建后端即可管理品牌主页。
         </p>
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a
+          <button
             className="px-6 py-3 rounded-full bg-indigo-500 hover:bg-indigo-400 transition shadow-lg shadow-indigo-500/25"
-            href="/admin"
+            onClick={() => setShowDialog(true)}
+            type="button"
           >
-            进入管理后台
-          </a>
+            申请体验
+          </button>
           <a
             className="px-6 py-3 rounded-full border border-slate-700 hover:border-slate-500"
-            href="https://github.com/smxl/gmgncard"
-            target="_blank"
-            rel="noreferrer"
+            href="/admin"
           >
-            GitHub
+            登录后台
           </a>
         </div>
+        {showDialog && <RegisterDialog onClose={() => setShowDialog(false)} />}
       </div>
     </header>
   );
