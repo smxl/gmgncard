@@ -13,7 +13,8 @@ export const verificationProfileSchema = z.object({
   extra: metadataSchema.optional(),
   verifiedBy: z.number().int().optional(),
   verifiedAt: z.string().optional(),
-  notes: z.string().optional()
+  notes: z.string().optional(),
+  qrAccess: z.boolean().optional()
 });
 
 export const linkTypeSchema = z.object({
@@ -139,7 +140,8 @@ export const verificationRequestSchema = z.object({
 });
 
 export const updateUserProfileSchema = verificationRequestSchema.extend({
-  verificationStatus: z.enum(verificationStatuses).optional()
+  verificationStatus: z.enum(verificationStatuses).optional(),
+  qrAccess: z.boolean().optional()
 });
 
 export const upsertLinkSchema = z.object({

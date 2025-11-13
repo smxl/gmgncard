@@ -16,6 +16,7 @@
   - `GET/PUT /api/settings`：统一走 KV。
   - `POST /api/auth/register` / `POST /api/auth/login` / `GET /api/auth/profile`：基于 JWT 的最小注册 & 登录。
   - `GET /@:handle`：SSR 渲染公开页面。
+  - `POST/PUT/DELETE /api/users/:handle/links`：管理员或 handle 本人可增删改链接。
 - 错误统一抛出 `HttpError`，`ZodError` 直接返回 400。
 
 ## 2. Admin (apps/admin)
@@ -44,5 +45,6 @@
 
 1. 为 `packages/db` 生成 D1 migrations，与 Cloudflare `wrangler d1` 集成。
 2. 在 Worker 中补充 Auth、Report、Links CRUD、文件上传签名等服务。
-3. Admin 侧串联 Cloudflare Access，增加 Users 审核操作、Links/Reports 视图。
-4. 编写 `docs/playbooks/verification.md`、`deployment.md`，记录审核/上线流程。
+3. Admin 侧串联 Cloudflare Access，增加 Users 审核操作、Links/Reports 视图、Self Dashboard（普通用户仅能管理自己的链接）。
+4. QR 管理支持付费开关：`user_profiles.qr_access` 控制是否展示二维码。
+5. 编写 `docs/playbooks/verification.md`、`deployment.md`，记录审核/上线流程。

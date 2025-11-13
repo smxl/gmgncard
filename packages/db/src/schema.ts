@@ -53,6 +53,7 @@ export const userProfiles = sqliteTable(
     wechatQrUrl: text('wechat_qr_url'),
     groupQrUrl: text('group_qr_url'),
     extra: text('extra', { mode: 'json' }).$type<Record<string, unknown> | null>(),
+    qrAccess: integer('qr_access', { mode: 'boolean' }).notNull().default(false),
     verifiedBy: integer('verified_by'),
     verifiedAt: text('verified_at'),
     notes: text('notes'),

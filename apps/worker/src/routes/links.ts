@@ -16,14 +16,14 @@ export const registerLinkRoutes = (router: Hono<AppBindings>) => {
     return withRequestMeta(c, data);
   });
 
-  router.post('/users/:handle/links', requireAuth({ role: 'admin' }), async (c) => {
+  router.post('/users/:handle/links', requireAuth({ role: 'admin', allowSelf: { param: 'handle' } }), async (c) => {
     const service = getService(c.env);
     const body = await c.req.json();
     const link = await service.create(c.req.param('handle'), body);
     return withRequestMeta(c, link);
   });
 
-  router.put('/users/:handle/links/:linkId', requireAuth({ role: 'admin' }), async (c) => {
+  router.put('/users/:handle/links/:linkId', requireAuth({ role: 'admin', allowSelf: { param: 'handle' } }), async (c) => {
     const linkId = Number.parseInt(c.req.param('linkId') ?? '', 10);
     if (!Number.isFinite(linkId)) {
       return c.json({ error: 'Invalid link id' }, 400);
@@ -34,7 +34,7 @@ export const registerLinkRoutes = (router: Hono<AppBindings>) => {
     return withRequestMeta(c, link);
   });
 
-  router.delete('/users/:handle/links/:linkId', requireAuth({ role: 'admin' }), async (c) => {
+  router.delete('/users/:handle/links/:linkId', requireAuth({ role: 'admin', allowSelf: { param: 'handle' } }), async (c) => {
     const linkId = Number.parseInt(c.req.param('linkId') ?? '', 10);
     if (!Number.isFinite(linkId)) {
       return c.json({ error: 'Invalid link id' }, 400);

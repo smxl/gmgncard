@@ -89,7 +89,12 @@ pnpm smoke           # 快速调用公共 API 进行冒烟检查
    binding = "GMGNCARD_DB"
    database_id = "<your-d1-id>"
    ```
-3. 运行 `pnpm --filter @gmgncard/worker deploy --env production` 或 `wrangler deploy`.
-4. Admin (Cloudflare Pages) 构建时需要 `VITE_WORKER_BASE` 指向 Worker 域名，可在 Pages 项目设置 `VITE_WORKER_BASE=https://<worker-domain>`.
+3. 每次 schema 更新后执行最新 migration（例如 `0003_qr_access.sql`）并运行 seed：
+   ```bash
+   wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/0003_qr_access.sql
+   wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/seed/dev_seed.sql
+   ```
+4. 运行 `pnpm --filter @gmgncard/worker deploy --env production` 或 `wrangler deploy`。
+5. Admin 与 Site（Cloudflare Pages）构建时需要 `VITE_WORKER_BASE` 指向 Worker 域名，可在 Pages 项目设置 `VITE_WORKER_BASE=https://<worker-domain>`，Site 端同样适用。
 
 > 若需要更多绑定（Queues、Durable Object、Access），统一在 `packages/config/src/index.ts` 中添加常量并在 `wrangler.toml` 声明。

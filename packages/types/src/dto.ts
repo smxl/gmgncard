@@ -15,6 +15,7 @@ export interface VerificationProfile {
   verifiedBy?: number;
   verifiedAt?: string;
   notes?: string;
+  qrAccess?: boolean;
 }
 
 export interface LinkTypeDTO {

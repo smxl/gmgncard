@@ -112,7 +112,8 @@ export class UserRepository {
       wechatQrUrl: payload.wechatQrUrl,
       groupQrUrl: payload.groupQrUrl,
       extra: payload.extra ?? null,
-      notes: payload.notes
+      notes: payload.notes,
+      qrAccess: payload.qrAccess ?? false
     };
 
     const shouldUpdateVerification =
@@ -125,6 +126,10 @@ export class UserRepository {
         target: userProfiles.userId,
         set: {
           ...upsertPayload,
+          qrAccess:
+            typeof payload.qrAccess === 'boolean'
+              ? payload.qrAccess
+              : userProfiles.qrAccess,
           updatedAt: sql`CURRENT_TIMESTAMP`,
           ...(shouldUpdateVerification
             ? { verifiedAt: sql`CURRENT_TIMESTAMP` }
@@ -205,7 +210,8 @@ export class UserRepository {
             extra: profile.extra ?? undefined,
             verifiedBy: profile.verifiedBy ?? undefined,
             verifiedAt: profile.verifiedAt ?? undefined,
-            notes: profile.notes ?? undefined
+            notes: profile.notes ?? undefined,
+            qrAccess: Boolean(profile.qrAccess)
           }
         : undefined,
       links: userLinks,

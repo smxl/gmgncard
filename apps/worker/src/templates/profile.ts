@@ -44,7 +44,7 @@ const renderButtons = (user: UserDTO) => {
 const renderQrSection = (user: UserDTO) => {
   const qrBlocks: string[] = [];
   const profile = user.profile;
-  if (!profile) return '';
+  if (!profile || !profile.qrAccess) return '';
 
   if (profile.wechatQrUrl) {
     qrBlocks.push(`

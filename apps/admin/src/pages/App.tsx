@@ -5,18 +5,31 @@ import { SettingsPanel } from '../components/SettingsPanel';
 import { AuthPanel } from '../components/AuthPanel';
 import { LinksPanel } from '../components/LinksPanel';
 import { ReportsPanel } from '../components/ReportsPanel';
+import { SelfLinksPanel } from '../components/SelfLinksPanel';
+import { useAuth } from '../stores/auth';
 
-const App = () => (
-  <AppLayout>
-    <div className="grid">
-      <AuthPanel />
-      <HealthCard />
-      <SettingsPanel />
-    </div>
-    <UsersPanel />
-    <LinksPanel />
-    <ReportsPanel />
-  </AppLayout>
-);
+const App = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
+  return (
+    <AppLayout>
+      <div className="grid">
+        <AuthPanel />
+        <HealthCard />
+        {isAdmin && <SettingsPanel />}
+      </div>
+      {isAdmin ? (
+        <>
+          <UsersPanel />
+          <LinksPanel />
+          <ReportsPanel />
+        </>
+      ) : (
+        <SelfLinksPanel />
+      )}
+    </AppLayout>
+  );
+};
 
 export default App;
