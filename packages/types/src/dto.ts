@@ -16,6 +16,10 @@ export interface VerificationProfile {
   verifiedAt?: string;
   notes?: string;
   qrAccess?: boolean;
+  topPosition?: string;
+  bottomPosition?: string;
+  sidePreference?: string;
+  features?: Record<string, unknown>;
 }
 
 export interface LinkTypeDTO {
@@ -128,10 +132,15 @@ export interface VerificationRequestPayload {
   groupQrUrl?: string;
   extra?: Record<string, unknown>;
   notes?: string;
+  topPosition?: string;
+  bottomPosition?: string;
+  sidePreference?: string;
+  features?: Record<string, unknown>;
 }
 
 export interface UpdateUserProfilePayload extends VerificationRequestPayload {
   verificationStatus?: VerificationStatus;
+  qrAccess?: boolean;
 }
 
 export interface UpsertLinkPayload {

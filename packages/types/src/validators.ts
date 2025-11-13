@@ -14,7 +14,11 @@ export const verificationProfileSchema = z.object({
   verifiedBy: z.number().int().optional(),
   verifiedAt: z.string().optional(),
   notes: z.string().optional(),
-  qrAccess: z.boolean().optional()
+  qrAccess: z.boolean().optional(),
+  topPosition: z.string().max(32).optional(),
+  bottomPosition: z.string().max(32).optional(),
+  sidePreference: z.string().max(32).optional(),
+  features: metadataSchema.optional()
 });
 
 export const linkTypeSchema = z.object({
@@ -136,7 +140,11 @@ export const verificationRequestSchema = z.object({
   wechatQrUrl: z.string().url().optional(),
   groupQrUrl: z.string().url().optional(),
   extra: metadataSchema.optional(),
-  notes: z.string().optional()
+  notes: z.string().optional(),
+  topPosition: z.string().max(32).optional(),
+  bottomPosition: z.string().max(32).optional(),
+  sidePreference: z.string().max(32).optional(),
+  features: metadataSchema.optional()
 });
 
 export const updateUserProfileSchema = verificationRequestSchema.extend({

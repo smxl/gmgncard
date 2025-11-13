@@ -71,6 +71,28 @@ const renderQrSection = (user: UserDTO) => {
   return `<section class="qr-grid">${qrBlocks.join('')}</section>`;
 };
 
+const renderStats = (user: UserDTO) => {
+  const profile = user.profile;
+  if (!profile) return '';
+
+  const items: string[] = [];
+  if (profile.pSize) items.push(`<li>Top: ${escapeHtml(profile.pSize)}</li>`);
+  if (profile.fSize) items.push(`<li>Bottom: ${escapeHtml(profile.fSize)}</li>`);
+  if (profile.age) items.push(`<li>Age: ${profile.age}</li>`);
+  if (profile.topPosition) items.push(`<li>Top pref: ${escapeHtml(profile.topPosition)}</li>`);
+  if (profile.bottomPosition) items.push(`<li>Bottom pref: ${escapeHtml(profile.bottomPosition)}</li>`);
+  if (profile.sidePreference) items.push(`<li>Side: ${escapeHtml(profile.sidePreference)}</li>`);
+
+  if (!items.length) return '';
+
+  return `
+    <section class="stats">
+      <h3>Profile</h3>
+      <ul>${items.join('')}</ul>
+    </section>
+  `;
+};
+
 export const renderProfilePage = (user: UserDTO) => `<!doctype html>
 <html lang="zh-CN">
   <head>
@@ -173,6 +195,21 @@ export const renderProfilePage = (user: UserDTO) => `<!doctype html>
         border-radius: 14px;
         border: 1px solid rgba(148,163,184,0.3);
       }
+      .stats {
+        margin: 1.5rem 0;
+        padding: 1rem;
+        border-radius: 14px;
+        background: rgba(99,102,241,0.08);
+      }
+      .stats ul {
+        list-style: none;
+        padding: 0;
+        margin: 0.5rem 0 0;
+        color: #475569;
+      }
+      .stats li + li {
+        margin-top: 0.35rem;
+      }
       .empty {
         text-align: center;
         color: #94a3b8;
@@ -202,6 +239,7 @@ export const renderProfilePage = (user: UserDTO) => `<!doctype html>
         <p class="handle">@${escapeHtml(user.handle)}</p>
         ${user.bio ? `<p class="bio">${escapeHtml(user.bio)}</p>` : ''}
         ${renderButtons(user)}
+        ${renderStats(user)}
         ${renderLinks(user)}
         ${renderQrSection(user)}
       </article>

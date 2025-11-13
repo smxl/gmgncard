@@ -11,8 +11,8 @@ ON CONFLICT(handle) DO UPDATE SET
   role = excluded.role,
   updated_at = CURRENT_TIMESTAMP;
 
-INSERT INTO user_profiles (user_id, verification_status, p_size, f_size, age, wechat_qr_url, group_qr_url, notes, qr_access)
-SELECT id, 'approved', '165', '45', 24, 'https://example.com/alice-wechat.png', NULL, 'Core team', 1
+INSERT INTO user_profiles (user_id, verification_status, p_size, f_size, age, wechat_qr_url, group_qr_url, notes, qr_access, top_position, bottom_position, side_preference, features)
+SELECT id, 'approved', '165', '45', 24, 'https://example.com/alice-wechat.png', NULL, 'Core team', 1, 'Top', 'Bottom', 'Switch', json_object('tattoo', true)
 FROM users WHERE handle = 'alice'
 ON CONFLICT(user_id) DO UPDATE SET
   verification_status = excluded.verification_status,

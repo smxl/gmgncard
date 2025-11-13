@@ -30,7 +30,7 @@ export const Hero = () => {
             申请体验
           </button>
           <a
-            className="px-6 py-3 rounded-full border border-slate-700 hover:border-slate-500"
+            className="px-6 py-3 rounded-full border border-slate-700 hover-border-slate-500"
             href="/admin"
           >
             登录后台
