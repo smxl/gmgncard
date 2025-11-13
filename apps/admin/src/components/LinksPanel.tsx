@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
-import type { UpsertLinkPayload } from '@gmgncard/types';
+import { useMemo, useState } from 'react';
+import type { LinkDTO, UpsertLinkPayload } from '@gmgncard/types';
 import { Card } from './Card';
 import { useLinks } from '../hooks/useLinks';
 import { adminApi } from '../lib/api';
@@ -23,6 +23,19 @@ export const LinksPanel = () => {
     await queryClient.invalidateQueries({ queryKey: ['links', handle] });
   };
 
+  const linkToPayload = useMemo(
+    () =>
+      (link: LinkDTO): UpsertLinkPayload => ({
+        title: link.title,
+        url: link.url,
+        order: link.order,
+        isHidden: link.isHidden,
+        typeId: link.type?.id,
+        metadata: link.metadata
+      }),
+    []
+  );
+
   const createMutation = useMutation({
     mutationFn: (payload: UpsertLinkPayload) => adminApi.createLink(handle, payload),
     onSuccess: async () => {
@@ -33,6 +46,15 @@ export const LinksPanel = () => {
 
   const deleteMutation = useMutation({
     mutationFn: (linkId: number) => adminApi.deleteLink(handle, linkId),
+    onSuccess: invalidate
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: ({ link, nextHidden }: { link: LinkDTO; nextHidden: boolean }) =>
+      adminApi.updateLink(handle, link.id, {
+        ...linkToPayload(link),
+        isHidden: nextHidden
+      }),
     onSuccess: invalidate
   });
 
@@ -71,8 +93,17 @@ export const LinksPanel = () => {
                 <StatusBadge tone={link.isHidden ? 'warning' : 'success'} label={link.isHidden ? '隐藏' : '显示'} />
                 <button
                   className="ghost-btn"
+                  type="button"
+                  onClick={() => toggleMutation.mutate({ link, nextHidden: !link.isHidden })}
+                  disabled={!token || toggleMutation.isPending}
+                >
+                  {link.isHidden ? '设为显示' : '设为隐藏'}
+                </button>
+                <button
+                  className="ghost-btn"
                   onClick={() => deleteMutation.mutateAsync(link.id)}
                   disabled={!token || deleteMutation.isPending}
+                  type="button"
                 >
                   删除
                 </button>

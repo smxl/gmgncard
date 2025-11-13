@@ -8,6 +8,7 @@ Cloudflare 原生的类似 Linktr.ee, LinkStack 服务。使用 pnpm workspaces 
 pnpm install         # 一次性安装所有依赖
 pnpm dev:worker      # 启动 Cloudflare Worker (wrangler dev)
 pnpm dev:admin       # 启动 Admin 前端 (Vite)
+pnpm dev:site        # 启动公开 Landing 页 (Vite)
 pnpm smoke           # 快速调用公共 API 进行冒烟检查
 ```
 
