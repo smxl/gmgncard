@@ -140,6 +140,11 @@ export const adminApi = {
       method: 'PUT',
       body: JSON.stringify(payload)
     }),
+  updateFeatured: (handle: string, payload: { isFeatured?: boolean; adLabel?: string | null }) =>
+    request<UserDTO>(`/api/users/${handle}/featured`, {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    }),
   submitProfile: (handle: string, payload: UpdateUserProfilePayload) =>
     request<UserDTO>(`/api/users/${handle}/profile`, {
       method: 'POST',

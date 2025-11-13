@@ -52,4 +52,11 @@ export const registerUserRoutes = (router: Hono<AppBindings>) => {
       return withRequestMeta(c, updated);
     }
   );
+
+  router.put('/users/:handle/featured', requireAuth({ role: 'admin' }), async (c) => {
+    const body = await c.req.json();
+    const service = getService(c.env);
+    const updated = await service.updateFeatured(c.req.param('handle'), body);
+    return withRequestMeta(c, updated);
+  });
 };

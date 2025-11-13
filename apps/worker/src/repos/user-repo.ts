@@ -133,6 +133,18 @@ export class UserRepository {
     return created;
   }
 
+  async updateUserMeta(handle: string, values: Partial<{ isFeatured: boolean; adLabel: string | null }>) {
+    const [updated] = await this.db
+      .update(users)
+      .set({
+        ...(values.isFeatured === undefined ? {} : { isFeatured: values.isFeatured }),
+        ...(values.adLabel === undefined ? {} : { adLabel: values.adLabel })
+      })
+      .where(eq(users.handle, handle))
+      .returning();
+    return updated;
+  }
+
   async updateProfile(userId: number, payload: UpdateUserProfilePayload) {
     const upsertPayload = {
       userId,

@@ -41,6 +41,14 @@ export const PendingProfilesPanel = () => {
     await mutation.mutateAsync({ handle: user.handle, payload });
   };
 
+  const handleReject = async (user: UserDTO, notes?: string) => {
+    const payload: UpdateUserProfilePayload = {
+      verificationStatus: 'rejected',
+      notes
+    };
+    await mutation.mutateAsync({ handle: user.handle, payload });
+  };
+
   if (!token) {
     return (
       <Card title="资料审核" description="登录管理员账号后可审核用户资料">
@@ -69,7 +77,12 @@ export const PendingProfilesPanel = () => {
         </aside>
         <section className="user-detail">
           {selected ? (
-            <ProfileReviewForm user={selected} onApprove={handleApprove} loading={mutation.isPending} />
+            <ProfileReviewForm
+              user={selected}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              loading={mutation.isPending}
+            />
           ) : (
             <p className="muted">选择左侧用户开始审核。</p>
           )}
@@ -82,14 +95,17 @@ export const PendingProfilesPanel = () => {
 const ProfileReviewForm = ({
   user,
   onApprove,
+  onReject,
   loading
 }: {
   user: UserDTO;
   onApprove: (user: UserDTO, payload: Partial<UpdateUserProfilePayload>) => Promise<void>;
+  onReject: (user: UserDTO, notes?: string) => Promise<void>;
   loading: boolean;
 }) => {
   const profile = user.profile;
   const [qrAccess, setQrAccess] = useState(Boolean(profile?.qrAccess));
+  const [rejectReason, setRejectReason] = useState('');
 
   return (
     <div>
@@ -125,7 +141,22 @@ const ProfileReviewForm = ({
         <button onClick={() => onApprove(user, { qrAccess })} disabled={loading}>
           {loading ? '处理中…' : '通过' }
         </button>
+        <button
+          type="button"
+          className="ghost-btn"
+          onClick={() => onReject(user, rejectReason)}
+          disabled={loading}
+        >
+          拒绝
+        </button>
       </div>
+      <textarea
+        className="plaza-input"
+        placeholder="拒绝原因"
+        value={rejectReason}
+        onChange={(event) => setRejectReason(event.target.value)}
+        rows={3}
+      />
     </div>
   );
 };

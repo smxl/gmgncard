@@ -8,6 +8,7 @@ import { ReportsPanel } from '../components/ReportsPanel';
 import { SelfLinksPanel } from '../components/SelfLinksPanel';
 import { SelfProfilePanel } from '../components/SelfProfilePanel';
 import { PendingProfilesPanel } from '../components/PendingProfilesPanel';
+import { PlazaAdminPanel } from '../components/PlazaAdminPanel';
 import { useAuth } from '../stores/auth';
 
 const App = () => {
@@ -25,6 +26,7 @@ const App = () => {
         <>
           <UsersPanel />
           <PendingProfilesPanel />
+          <PlazaAdminPanel />
           <LinksPanel />
           <ReportsPanel />
         </>

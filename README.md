@@ -61,6 +61,7 @@ pnpm smoke           # 快速调用公共 API 进行冒烟检查
 | `PUT /api/users/:handle/links/:linkId` | 更新链接（需管理员）。 |
 | `DELETE /api/users/:handle/links/:linkId` | 删除链接（需管理员）。 |
 | `GET /api/plaza` | 获取广场展示的精选用户列表。 |
+| `PUT /api/users/:handle/featured` | 管理员设置精选/广告标记。 |
 
 > API 响应已统一为 `{ data, meta }` 结构，并在 `meta.requestId` 中返回追踪 ID。
 

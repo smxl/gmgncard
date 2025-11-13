@@ -77,4 +77,12 @@ export class UserService {
     }
     return updated;
   }
+
+  async updateFeatured(handle: string, input: { isFeatured?: boolean; adLabel?: string | null }) {
+    const record = await this.repo.updateUserMeta(handle, input);
+    if (!record) {
+      throw new HttpError(404, 'User not found');
+    }
+    return this.getByHandle(handle);
+  }
 }
