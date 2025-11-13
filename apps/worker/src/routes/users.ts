@@ -40,4 +40,15 @@ export const registerUserRoutes = (router: Hono<AppBindings>) => {
     const updated = await service.updateProfile(c.req.param('handle'), body);
     return withRequestMeta(c, updated);
   });
+
+  router.post(
+    '/users/:handle/profile',
+    requireAuth({ allowSelf: { param: 'handle', require: true } }),
+    async (c) => {
+      const body = await c.req.json();
+      const service = getService(c.env);
+      const updated = await service.submitProfile(c.req.param('handle'), body);
+      return withRequestMeta(c, updated);
+    }
+  );
 };

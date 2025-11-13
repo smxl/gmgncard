@@ -25,6 +25,8 @@ export const users = sqliteTable(
     email: text('email'),
     avatarUrl: text('avatar_url'),
     bio: text('bio'),
+    isFeatured: integer('is_featured', { mode: 'boolean' }).notNull().default(false),
+    adLabel: text('ad_label'),
     passwordHash: text('password_hash'),
     role: text('role').notNull().default('user'),
     createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),

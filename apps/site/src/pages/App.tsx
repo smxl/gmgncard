@@ -1,6 +1,7 @@
 import { Hero } from '../sections/Hero';
 import { Features } from '../sections/Features';
 import { Showcase } from '../sections/Showcase';
+import { Plaza } from '../sections/Plaza';
 import { CTA } from '../sections/CTA';
 
 const App = () => (
@@ -8,6 +9,7 @@ const App = () => (
     <Hero />
     <Features />
     <Showcase />
+    <Plaza />
     <CTA />
   </div>
 );

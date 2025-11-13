@@ -1,7 +1,7 @@
-INSERT INTO users (handle, display_name, email, avatar_url, bio, password_hash, role)
+INSERT INTO users (handle, display_name, email, avatar_url, bio, password_hash, role, is_featured, ad_label)
 VALUES
-  ('alice', 'Alice Zhang', 'alice@example.com', 'https://example.com/alice.png', 'GMGN curator', 'd790cbc5a50c1ac8672c82b8862d225c6debe55d9c42e96edcd5b7ff8e197769', 'admin'),
-  ('bob', 'Bob Li', 'bob@example.com', 'https://example.com/bob.png', 'Community mod', NULL, 'user')
+  ('alice', 'Alice Zhang', 'alice@example.com', 'https://example.com/alice.png', 'GMGN curator', 'd790cbc5a50c1ac8672c82b8862d225c6debe55d9c42e96edcd5b7ff8e197769', 'admin', 1, 'sponsor'),
+  ('bob', 'Bob Li', 'bob@example.com', 'https://example.com/bob.png', 'Community mod', NULL, 'user', 0, NULL)
 ON CONFLICT(handle) DO UPDATE SET
   display_name = excluded.display_name,
   email = excluded.email,
@@ -9,6 +9,8 @@ ON CONFLICT(handle) DO UPDATE SET
   bio = excluded.bio,
   password_hash = excluded.password_hash,
   role = excluded.role,
+  is_featured = excluded.is_featured,
+  ad_label = excluded.ad_label,
   updated_at = CURRENT_TIMESTAMP;
 
 INSERT INTO user_profiles (user_id, verification_status, p_size, f_size, age, wechat_qr_url, group_qr_url, notes, qr_access, top_position, bottom_position, side_preference, features)

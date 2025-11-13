@@ -53,6 +53,20 @@ export class UserRepository {
     );
   }
 
+  async listFeatured(limit = 12) {
+    const rows = await this.db
+      .select({ user: users, profile: userProfiles })
+      .from(users)
+      .leftJoin(userProfiles, eq(userProfiles.userId, users.id))
+      .where(eq(users.isFeatured, true))
+      .orderBy(desc(users.updatedAt))
+      .limit(limit);
+
+    const userIds = rows.map((row) => row.user.id!).filter(Boolean);
+    const linksByUser = await this.loadLinksForUsers(userIds);
+    return rows.map((row) => this.toUserDto(row, linksByUser.get(row.user.id ?? -1)));
+  }
+
   async findByHandle(handle: string) {
     const rows = await this.db
       .select({
@@ -113,7 +127,11 @@ export class UserRepository {
       groupQrUrl: payload.groupQrUrl,
       extra: payload.extra ?? null,
       notes: payload.notes,
-      qrAccess: payload.qrAccess ?? false
+      qrAccess: payload.qrAccess ?? false,
+      topPosition: payload.topPosition,
+      bottomPosition: payload.bottomPosition,
+      sidePreference: payload.sidePreference,
+      features: payload.features ?? null
     };
 
     const shouldUpdateVerification =
@@ -198,6 +216,8 @@ export class UserRepository {
       email: user.email ?? undefined,
       avatarUrl: user.avatarUrl ?? undefined,
       bio: user.bio ?? undefined,
+      isFeatured: Boolean(user.isFeatured),
+      adLabel: user.adLabel ?? undefined,
       role: user.role ?? undefined,
       profile: profile
         ? {
@@ -211,7 +231,11 @@ export class UserRepository {
             verifiedBy: profile.verifiedBy ?? undefined,
             verifiedAt: profile.verifiedAt ?? undefined,
             notes: profile.notes ?? undefined,
-            qrAccess: Boolean(profile.qrAccess)
+            qrAccess: Boolean(profile.qrAccess),
+            topPosition: profile.topPosition ?? undefined,
+            bottomPosition: profile.bottomPosition ?? undefined,
+            sidePreference: profile.sidePreference ?? undefined,
+            features: profile.features ?? undefined
           }
         : undefined,
       links: userLinks,

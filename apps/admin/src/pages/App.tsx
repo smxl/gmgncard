@@ -6,6 +6,7 @@ import { AuthPanel } from '../components/AuthPanel';
 import { LinksPanel } from '../components/LinksPanel';
 import { ReportsPanel } from '../components/ReportsPanel';
 import { SelfLinksPanel } from '../components/SelfLinksPanel';
+import { SelfProfilePanel } from '../components/SelfProfilePanel';
 import { useAuth } from '../stores/auth';
 
 const App = () => {
@@ -26,7 +27,10 @@ const App = () => {
           <ReportsPanel />
         </>
       ) : (
-        <SelfLinksPanel />
+        <>
+          <SelfProfilePanel />
+          <SelfLinksPanel />
+        </>
       )}
     </AppLayout>
   );

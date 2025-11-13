@@ -25,6 +25,10 @@ export class UserService {
     };
   }
 
+  async listFeatured(limit = 12) {
+    return this.repo.listFeatured(limit);
+  }
+
   async getByHandle(handle: string) {
     const user = await this.repo.findByHandle(handle);
     if (!user) {
@@ -52,5 +56,22 @@ export class UserService {
 
   validateVerificationRequest(body: unknown) {
     return verificationRequestSchema.parse(body);
+  }
+
+  async submitProfile(handle: string, payload: UpdateUserProfilePayload) {
+    const base = verificationRequestSchema.parse(payload);
+    const user = await this.repo.findByHandle(handle);
+    if (!user) {
+      throw new HttpError(404, `User ${handle} not found`);
+    }
+    const updated = await this.repo.updateProfile(user.id, {
+      ...base,
+      verificationStatus: 'pending',
+      qrAccess: false
+    });
+    if (!updated) {
+      throw new HttpError(500, 'Unable to submit profile');
+    }
+    return updated;
   }
 }

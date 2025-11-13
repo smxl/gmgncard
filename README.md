@@ -47,11 +47,12 @@ pnpm smoke           # 快速调用公共 API 进行冒烟检查
 | `GET /api/users?limit=20` | 列出最新用户（含验证与链接快照）。 |
 | `GET /api/users/:handle` | 单个用户详情。 |
 | `PUT /api/users/:handle/profile` | 更新/审核资料、二维码链接与验证状态。 |
+| `POST /api/users/:handle/profile` | 用户提交资料等待审核。 |
 | `GET /api/settings` | 读取全局主题/权限配置（KV 缓存）。 |
 | `PUT /api/settings` | 更新配置并写入 KV。 |
-| `GET /api/reports` | 管理端拉取举报列表。 |
-| `POST /api/reports` | 用户提交举报/反馈。 |
-| `PATCH /api/reports/:id` | 管理端更新举报状态。 |
+| `GET /api/reports` | 管理端拉取列表。 |
+| `POST /api/reports` | 用户提交举反馈。 |
+| `PATCH /api/reports/:id` | 管理端更新状态。 |
 | `POST /api/auth/register` | 注册账号并获取 JWT。 |
 | `POST /api/auth/login` | 登录获取 JWT。 |
 | `GET /api/auth/profile` | 校验 token 并返回用户信息。 |
@@ -59,6 +60,7 @@ pnpm smoke           # 快速调用公共 API 进行冒烟检查
 | `POST /api/users/:handle/links` | 创建链接（需管理员）。 |
 | `PUT /api/users/:handle/links/:linkId` | 更新链接（需管理员）。 |
 | `DELETE /api/users/:handle/links/:linkId` | 删除链接（需管理员）。 |
+| `GET /api/plaza` | 获取广场展示的精选用户列表。 |
 
 > API 响应已统一为 `{ data, meta }` 结构，并在 `meta.requestId` 中返回追踪 ID。
 

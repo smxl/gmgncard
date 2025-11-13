@@ -100,6 +100,8 @@ export interface UserDTO {
   avatarUrl?: string;
   bio?: string;
   role?: string;
+  isFeatured?: boolean;
+  adLabel?: string;
   profile?: VerificationProfile;
   links?: LinkDTO[];
   buttons?: ButtonDTO[];

@@ -17,6 +17,8 @@
   - `POST /api/auth/register` / `POST /api/auth/login` / `GET /api/auth/profile`：基于 JWT 的最小注册 & 登录。
   - `GET /@:handle`：SSR 渲染公开页面。
   - `POST/PUT/DELETE /api/users/:handle/links`：管理员或 handle 本人可增删改链接。
+  - `POST /api/users/:handle/profile`：handle 本人提交资料，保持 `verification_status=pending`。
+  - `GET /api/plaza`：返回精选/广告用户用作 Landing 广场。
 - 错误统一抛出 `HttpError`，`ZodError` 直接返回 400。
 
 ## 2. Admin (apps/admin)

@@ -5,6 +5,7 @@ import type {
   CreateReportPayload,
   LinkDTO,
   LoginPayload,
+  UpdateUserProfilePayload,
   RegisterPayload,
   ReportDTO,
   ReportStatus,
@@ -100,6 +101,7 @@ export const adminApi = {
   health: () => request<HealthPayload>(API_ROUTES.health),
   listUsers: (params: { limit?: number } = {}) =>
     request<UserDTO[]>(`${API_ROUTES.users}${buildQuery(params)}`),
+  getUser: (handle: string) => request<UserDTO>(`${API_ROUTES.users}/${handle}`),
   getSettings: () => request<SettingsDTO>(API_ROUTES.settings),
   updateSettings: (payload: SettingsUpdatePayload) =>
     request<SettingsDTO>(API_ROUTES.settings, {
@@ -131,6 +133,11 @@ export const adminApi = {
   deleteLink: (handle: string, linkId: number) =>
     request<{ deleted: boolean }>(`/api/users/${handle}/links/${linkId}`, {
       method: 'DELETE'
+    }),
+  submitProfile: (handle: string, payload: UpdateUserProfilePayload) =>
+    request<UserDTO>(`/api/users/${handle}/profile`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
     }),
   listReports: () => request<ReportDTO[]>(API_ROUTES.reports),
   updateReportStatus: (reportId: number, status: ReportStatus) =>
