@@ -1,6 +1,6 @@
 # Verification Playbook
 
-用途：指导管理员在 GMGN Card 上完成用户资料审核、二维码校验及举报处理。
+用途：指导管理员在 GMGN Card 上完成用户资料审核、二维码校验处理。
 
 ## 1. 登录后台
 
@@ -21,9 +21,9 @@
 2. 新增链接：填写标题、URL、排序以及是否隐藏，提交后会调用 `POST /api/users/:handle/links`。
 3. 删除或隐藏违规链接：点击 `删除` 或勾选 `隐藏`，Worker 会在 `/@:handle` 页面自动同步。
 
-## 4. 举报处理
+## 4. 处理
 
-1. 在 `Reports` 面板查看所有 `open` 状态的举报。
+1. 在 `Reports` 面板查看所有 `open` 状态。
 2. 与用户沟通或交叉验证后，将下拉菜单调整为 `reviewing/resolved/rejected`，会触发 `PATCH /api/reports/:id`。
 3. 对恶意用户可结合 Links CRUD 直接下架链接或设置为隐藏。
 

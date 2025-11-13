@@ -1,7 +1,7 @@
 const steps = [
-  '注册账号或通过 Access 登录',
-  '提交二维码、资料等待审核',
-  '发布个性化 @handle 页面并追踪数据'
+  '注册账号登录',
+  '添加链接和完善信息',
+  '开始使用个性化 @handle 页面'
 ];
 
 const mockLinks = [
@@ -15,7 +15,7 @@ export const Showcase = () => (
     <div className="max-w-5xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
       <div>
         <p className="text-indigo-200 uppercase tracking-[0.4em] text-xs">Workflow</p>
-        <h2 className="text-3xl font-semibold mt-3">三步搭建品牌主页</h2>
+        <h2 className="text-3xl font-semibold mt-3">三步搭建个人主页</h2>
         <ol className="mt-6 space-y-3 text-slate-300">
           {steps.map((step, index) => (
             <li key={step} className="flex items-start gap-3">

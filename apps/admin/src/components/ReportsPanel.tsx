@@ -19,10 +19,10 @@ export const ReportsPanel = () => {
   });
 
   return (
-    <Card title="Reports" description="举报与反馈处理">
+    <Card title="Reports" description="反馈处理">
       {!token && <p className="error">登录后可更新状态</p>}
       {reportsQuery.isLoading && <p className="muted">加载中…</p>}
-      {reportsQuery.isError && <p className="error">无法加载举报</p>}
+      {reportsQuery.isError && <p className="error">无法加载</p>}
       <ul className="reports-list">
         {(reportsQuery.data?.data ?? []).map((report) => (
           <li key={report.id}>

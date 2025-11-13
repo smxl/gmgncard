@@ -11,6 +11,7 @@ import { registerReportRoutes } from './routes/reports';
 import { registerAuthRoutes } from './routes/auth';
 import { registerPublicRoutes } from './routes/public';
 import { registerLinkRoutes } from './routes/links';
+import { registerPlazaRoutes } from './routes/plaza';
 import { withRequestMeta } from './utils/responses';
 import { HttpError, isHttpError } from './utils/errors';
 
@@ -26,6 +27,7 @@ registerSettingsRoutes(api);
 registerReportRoutes(api);
 registerAuthRoutes(api);
 registerLinkRoutes(api);
+registerPlazaRoutes(api);
 
 app.route('/api', api);
 

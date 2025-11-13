@@ -50,7 +50,7 @@ src/
 │   ├─ LinkService         # 链接 CRUD、排序、点击统计
 │   ├─ ThemeService        # 主题 & 块资源（R2）
 │   ├─ SettingsService     # 站点配置
-│   ├─ ReportService       # 举报/反馈（含 Turnstile）
+│   ├─ ReportService       # 反馈（含 Turnstile）
 │   └─ BackupService       # 队列 + Cron 备份
 ├─ repos/                  # Drizzle 查询封装
 ├─ schemas/                # Zod 校验
@@ -65,7 +65,7 @@ src/
 - 技术栈：React + Vite 或 SvelteKit。
 - 页面：Auth、Dashboard、Users（含验证/二维码）、Links、Themes、Settings。
 - 与 Worker 通信统一走 `packages/types` 提供的 API 客户端；Access 保护 + JWT Session。
-- Turnstile 应用于公开入口（验证申请、举报等）。
+- Turnstile 应用于公开入口（验证申请等）。
 
 ---
 

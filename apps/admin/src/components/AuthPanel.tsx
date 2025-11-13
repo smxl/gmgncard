@@ -27,7 +27,7 @@ export const AuthPanel = () => {
   return (
     <Card
       title="Admin Access"
-      description="登录后可执行链接、举报等管理操作"
+      description="登录后可执行链接管理操作"
       actions={
         token ? (
           <button className="ghost-btn" onClick={logout}>

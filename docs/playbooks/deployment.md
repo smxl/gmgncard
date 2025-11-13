@@ -46,7 +46,7 @@ Wrangler 会使用 `main = "../apps/worker/src/index.ts"` 生成最新 bundle，
 ## 6. 发布后验证
 
 1. 运行 `pnpm smoke`，`WORKER_BASE` 指向生产域名。
-2. 打开生产 Admin，使用管理员账户登录并执行一次链接/举报操作。
+2. 打开生产 Admin，使用管理员账户登录并执行一次链接操作。
 3. 访问公开页面 `https://<worker-domain>/@alice` 或真实 handle，核对静态内容。
 
 如遇异常，使用 `wrangler tail` 查看实时日志，并参考 `docs/playbooks/verification.md` 的排查步骤。***
