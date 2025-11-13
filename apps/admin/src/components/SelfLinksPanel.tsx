@@ -19,22 +19,6 @@ export const SelfLinksPanel = () => {
     isHidden: false
   });
 
-  if (bootstrapping) {
-    return (
-      <Card title="我的链接" description="登录后管理你的个人主页">
-        <p className="muted">加载中…</p>
-      </Card>
-    );
-  }
-
-  if (!handle) {
-    return (
-      <Card title="我的链接" description="登录后管理你的个人主页">
-        <p className="muted">请先登录。</p>
-      </Card>
-    );
-  }
-
   const invalidate = async () => {
     await queryClient.invalidateQueries({ queryKey: ['links', handle] });
   };
@@ -66,6 +50,22 @@ export const SelfLinksPanel = () => {
     mutationFn: (linkId: number) => adminApi.deleteLink(handle, linkId),
     onSuccess: invalidate
   });
+
+  if (bootstrapping) {
+    return (
+      <Card title="我的链接" description="登录后管理你的个人主页">
+        <p className="muted">加载中…</p>
+      </Card>
+    );
+  }
+
+  if (!handle) {
+    return (
+      <Card title="我的链接" description="登录后管理你的个人主页">
+        <p className="muted">请先登录。</p>
+      </Card>
+    );
+  }
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
