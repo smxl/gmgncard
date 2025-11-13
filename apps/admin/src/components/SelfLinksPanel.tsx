@@ -8,7 +8,7 @@ import { useLinks } from '../hooks/useLinks';
 import { adminApi } from '../lib/api';
 
 export const SelfLinksPanel = () => {
-  const { user, token } = useAuth();
+  const { user, token, bootstrapping } = useAuth();
   const handle = user?.handle ?? '';
   const linksQuery = useLinks(handle, Boolean(handle));
   const queryClient = useQueryClient();
@@ -18,6 +18,14 @@ export const SelfLinksPanel = () => {
     order: 0,
     isHidden: false
   });
+
+  if (bootstrapping) {
+    return (
+      <Card title="我的链接" description="登录后管理你的个人主页">
+        <p className="muted">加载中…</p>
+      </Card>
+    );
+  }
 
   if (!handle) {
     return (

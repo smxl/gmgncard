@@ -17,6 +17,7 @@ interface AuthContextValue {
   logout: () => void;
   loading: boolean;
   error: string | null;
+  bootstrapping: boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -30,15 +31,18 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [user, setUser] = useState<UserDTO | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [bootstrapping, setBootstrapping] = useState(true);
 
   useEffect(() => {
     registerAuthTokenGetter(() => token);
     if (!token) {
       localStorage.removeItem(STORAGE_KEY);
       setUser(null);
+      setBootstrapping(false);
       return;
     }
     localStorage.setItem(STORAGE_KEY, token);
+    setBootstrapping(true);
     (async () => {
       try {
         const profile = await adminApi.profile();
@@ -47,6 +51,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         console.error(err);
         setToken(null);
         setUser(null);
+      } finally {
+        setBootstrapping(false);
       }
     })();
   }, [token]);
@@ -76,6 +82,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       user,
       loading,
       error,
+      bootstrapping,
       login: (payload: LoginPayload) => performAuth(adminApi.login, payload),
       register: (payload: RegisterPayload) => performAuth(adminApi.register, payload),
       logout: () => {
@@ -83,7 +90,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         setUser(null);
       }
     }),
-    [token, user, loading, error]
+    [token, user, loading, error, bootstrapping]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

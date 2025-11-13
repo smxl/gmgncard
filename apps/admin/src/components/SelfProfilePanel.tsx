@@ -17,7 +17,7 @@ const emptyState: VerificationRequestPayload = {
 };
 
 export const SelfProfilePanel = () => {
-  const { user, token } = useAuth();
+  const { user, token, bootstrapping } = useAuth();
   const handle = user?.handle;
   const queryClient = useQueryClient();
   const profileQuery = useUserProfile(handle);
@@ -45,6 +45,14 @@ export const SelfProfilePanel = () => {
       await queryClient.invalidateQueries({ queryKey: ['user-profile', handle] });
     }
   });
+
+  if (bootstrapping) {
+    return (
+      <Card title="资料管理" description="提交资料由管理员审核后展示">
+        <p className="muted">资料加载中…</p>
+      </Card>
+    );
+  }
 
   if (!handle) {
     return (
