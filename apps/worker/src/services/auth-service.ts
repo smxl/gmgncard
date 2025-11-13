@@ -32,19 +32,20 @@ export class AuthService {
 
   async register(payload: RegisterPayload): Promise<AuthResponse> {
     const data = registerSchema.parse(payload);
+    const normalizedHandle = data.handle.toLowerCase();
     const existing = await this.repo.findUserRecord(data.handle);
     if (existing) {
       throw new HttpError(409, 'Handle already exists');
     }
 
     await this.repo.createUser({
-      handle: data.handle,
-      displayName: data.displayName,
+      handle: normalizedHandle,
+      displayName: data.displayName.trim(),
       email: data.email,
       passwordHash: await hashPassword(data.password)
     });
 
-    const user = await this.repo.findByHandle(data.handle);
+    const user = await this.repo.findByHandle(normalizedHandle);
     if (!user) {
       throw new HttpError(500, 'Unable to load created user');
     }

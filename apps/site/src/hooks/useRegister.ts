@@ -23,7 +23,14 @@ export const useRegister = () =>
       });
 
       if (!response.ok) {
-        throw new Error('注册失败，请稍后再试');
+        let message = '注册失败，请稍后再试';
+        try {
+          const errorJson = await response.json();
+          message = (errorJson?.error as string) ?? message;
+        } catch {
+          // ignore
+        }
+        throw new Error(message);
       }
 
       return response.json();

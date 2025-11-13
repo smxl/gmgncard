@@ -61,7 +61,10 @@ export const RegisterDialog = ({ onClose }: RegisterDialogProps) => {
               placeholder="如 gmgn"
               value={form.handle}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, handle: event.target.value.replace(/[^a-z0-9_-]/gi, '') }))
+                setForm((prev) => ({
+                  ...prev,
+                  handle: event.target.value.replace(/[^a-z0-9_-]/gi, '').toLowerCase()
+                }))
               }
               required
             />
