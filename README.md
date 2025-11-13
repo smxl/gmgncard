@@ -10,6 +10,14 @@ pnpm dev:worker      # 启动 Cloudflare Worker (wrangler dev)
 pnpm dev:admin       # 启动 Admin 前端 (Vite)
 pnpm dev:site        # 启动公开 Landing 页 (Vite)
 pnpm smoke           # 快速调用公共 API 进行冒烟检查
+# schema 变更后执行以下 migration 与 seed（按顺序）
+wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/0001_init.sql
+wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/0002_auth.sql
+wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/0003_qr_access.sql
+wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/0004_profile_extended.sql
+wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/0005_featured_users.sql
+wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/0006_profile_positions.sql
+wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/seed/dev_seed.sql
 ```
 
 其他脚本：
@@ -77,27 +85,22 @@ pnpm smoke           # 快速调用公共 API 进行冒烟检查
 
 ## Cloudflare 资源配置
 
-1. 复制 `.dev.vars.example`（拟新增）或手动在项目根目录创建 `.dev.vars`，填入：
+1. 复制 `.dev.vars.example`（拟新增）或手动在项目根目录创建 `.dev.vars`，填入（多个域名用逗号分隔，覆盖 Admin/Landing/生产域名）：
    ```
    JWT_SECRET=local-dev-secret
    TURNSTILE_SECRET=dummy
    TURNSTILE_SITE_KEY=dummy
    CF_ACCESS_AUD=dummy
    CF_ACCESS_TEAM=dummy
-   CORS_ORIGINS=http://localhost:4173
+   CORS_ORIGINS=http://localhost:4173,http://localhost:4174
    ```
-2. 在 `infra/wrangler.toml` 更新为实际的 D1/KV/R2 绑定 ID：
+2. 在 `infra/wrangler.toml` 更新为实际的 D1/KV/R2 绑定 ID，并保证 `[vars]` 中包含上述所有键（生产环境使用 `wrangler secret put JWT_SECRET` 等命令存储真实秘钥）。
    ```toml
    [[d1_databases]]
    binding = "GMGNCARD_DB"
    database_id = "<your-d1-id>"
    ```
-3. 每次 schema 更新后执行最新 migration（例如 `0003_qr_access.sql`）并运行 seed：
-   ```bash
-   wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/0003_qr_access.sql
-   wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/seed/dev_seed.sql
-   ```
-4. 运行 `pnpm --filter @gmgncard/worker deploy --env production` 或 `wrangler deploy`。
-5. Admin 与 Site（Cloudflare Pages）构建时需要 `VITE_WORKER_BASE` 指向 Worker 域名，可在 Pages 项目设置 `VITE_WORKER_BASE=https://<worker-domain>`，Site 端同样适用。
+3. 运行 `pnpm --filter @gmgncard/worker deploy --env production` 或 `wrangler deploy`。
+4. Admin 与 Site（Cloudflare Pages）构建时需要 `VITE_WORKER_BASE` 指向 Worker 域名，可在 Pages 项目设置 `VITE_WORKER_BASE=https://<worker-domain>`，Site 端同样适用。
 
 > 若需要更多绑定（Queues、Durable Object、Access），统一在 `packages/config/src/index.ts` 中添加常量并在 `wrangler.toml` 声明。

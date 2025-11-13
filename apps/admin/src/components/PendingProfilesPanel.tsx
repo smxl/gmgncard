@@ -117,16 +117,24 @@ const ProfileReviewForm = ({
         <dl className="verification-summary">
           <dt>Top Size</dt>
           <dd>{profile.pSize || '-'}</dd>
-          <dt>Bottom Size</dt>
+          <dt>Foot Size</dt>
           <dd>{profile.fSize || '-'}</dd>
           <dt>年龄</dt>
           <dd>{profile.age ?? '-'}</dd>
+          <dt>身高</dt>
+          <dd>{profile.height ?? '-'} cm</dd>
+          <dt>体重</dt>
+          <dd>{profile.weight ?? '-'} kg</dd>
           <dt>Top Position</dt>
           <dd>{profile.topPosition ?? '-'}</dd>
           <dt>Bottom Position</dt>
           <dd>{profile.bottomPosition ?? '-'}</dd>
+          <dt>Vers</dt>
+          <dd>{profile.versPosition ?? '-'}</dd>
           <dt>Side</dt>
           <dd>{profile.sidePreference ?? '-'}</dd>
+          <dt>隐藏 Position</dt>
+          <dd>{profile.hidePosition ? 'Yes' : 'No'}</dd>
           <dt>备注</dt>
           <dd>{profile.notes ?? '-'}</dd>
         </dl>

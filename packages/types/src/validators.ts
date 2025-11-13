@@ -8,6 +8,8 @@ export const verificationProfileSchema = z.object({
   pSize: z.string().max(32).optional(),
   fSize: z.string().max(32).optional(),
   age: z.number().int().nonnegative().optional(),
+  height: z.number().int().nonnegative().optional(),
+  weight: z.number().int().nonnegative().optional(),
   wechatQrUrl: z.string().url().optional(),
   groupQrUrl: z.string().url().optional(),
   extra: metadataSchema.optional(),
@@ -17,7 +19,9 @@ export const verificationProfileSchema = z.object({
   qrAccess: z.boolean().optional(),
   topPosition: z.string().max(32).optional(),
   bottomPosition: z.string().max(32).optional(),
+  versPosition: z.string().max(32).optional(),
   sidePreference: z.string().max(32).optional(),
+  hidePosition: z.boolean().optional(),
   features: metadataSchema.optional()
 });
 
@@ -137,13 +141,17 @@ export const verificationRequestSchema = z.object({
   pSize: z.string().max(32).optional(),
   fSize: z.string().max(32).optional(),
   age: z.number().int().nonnegative().optional(),
+  height: z.number().int().nonnegative().optional(),
+  weight: z.number().int().nonnegative().optional(),
   wechatQrUrl: z.string().url().optional(),
   groupQrUrl: z.string().url().optional(),
   extra: metadataSchema.optional(),
   notes: z.string().optional(),
   topPosition: z.string().max(32).optional(),
   bottomPosition: z.string().max(32).optional(),
+  versPosition: z.string().max(32).optional(),
   sidePreference: z.string().max(32).optional(),
+  hidePosition: z.boolean().optional(),
   features: metadataSchema.optional()
 });
 

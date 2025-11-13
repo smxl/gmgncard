@@ -10,14 +10,14 @@
 
 ## 2. 审核用户资料
 
-1. 在 `Users` 面板选择一个 handle。
-2. 核对用户上传的二维码链接、尺码、备注等信息。
-3. 通过 `PUT /api/users/:handle/profile` API（目前可使用 Postman 或后续 UI）将 `verificationStatus` 调整为 `approved/rejected`，同时填写 notes。
-4. 若包含敏感二维码，请确认 R2 访问策略及展示逻辑（仅在验证通过时面向公众展示）。
+1. 在 `Pending Profiles` 面板选择一个 handle。
+2. 核对用户提交的尺寸（pSize/fSize/height/weight）、Position（Top/Bottom/Vers/Side）、二维码等信息。
+3. 若通过，勾选是否解锁二维码（QR Access），点击“通过”；若拒绝，在备注中填写原因并点击“拒绝”。两者都会调用 `PUT /api/users/:handle/profile`。
+4. 通过后资料立即对外展示；拒绝后用户可在自助面板看到状态并重新提交。
 
 ## 3. 链接管理
 
-1. 在 `Links` 面板输入目标 handle。
+1. 在 `Links` 面板输入目标 handle，管理员可批量管理；普通用户在 `My Links` 自助面板维护自己链接。
 2. 新增链接：填写标题、URL、排序以及是否隐藏，提交后会调用 `POST /api/users/:handle/links`。
 3. 删除或隐藏违规链接：点击 `删除` 或勾选 `隐藏`，Worker 会在 `/@:handle` 页面自动同步。
 
@@ -33,4 +33,4 @@
 ```bash
 pnpm smoke
 ```
-确保 `/api/health`、`/api/users` 以及公开页面正常响应。***
+确保 `/api/health`、`/api/users`、`/api/plaza` 以及公开页面正常响应。***

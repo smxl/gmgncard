@@ -13,8 +13,8 @@ ON CONFLICT(handle) DO UPDATE SET
   ad_label = excluded.ad_label,
   updated_at = CURRENT_TIMESTAMP;
 
-INSERT INTO user_profiles (user_id, verification_status, p_size, f_size, age, wechat_qr_url, group_qr_url, notes, qr_access, top_position, bottom_position, side_preference, features)
-SELECT id, 'approved', '165', '45', 24, 'https://example.com/alice-wechat.png', NULL, 'Core team', 1, 'Top', 'Bottom', 'Switch', json_object('tattoo', true)
+INSERT INTO user_profiles (user_id, verification_status, p_size, f_size, age, wechat_qr_url, group_qr_url, notes, qr_access, position_top, position_bottom, position_vers, position_side, position_hide, height, weight, features)
+SELECT id, 'approved', '165', '45', 24, 'https://example.com/alice-wechat.png', NULL, 'Core team', 1, 'Top', NULL, 'Vers', 'Left', 0, 178, 70, json_object('tattoo', true)
 FROM users WHERE handle = 'alice'
 ON CONFLICT(user_id) DO UPDATE SET
   verification_status = excluded.verification_status,

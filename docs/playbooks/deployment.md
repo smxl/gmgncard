@@ -19,13 +19,23 @@ pnpm smoke            # 确保 Worker API 正常
 
 ## 3. 数据迁移
 
-在每次 schema 更新后，必须：
+按顺序执行所有未应用的 SQL（生产环境去掉 `--local`）：
 
 ```bash
-wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/000X_xxx.sql
+for file in 0001_init 0002_auth 0003_qr_access 0004_profile_extended 0005_featured_users 0006_profile_positions; do
+  wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/$file.sql
+done
+wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/seed/dev_seed.sql
 ```
 
-按顺序执行所有未应用的 SQL，生产环境去掉 `--local`。
+> 建议在 PR/部署前运行 `pnpm smoke` 验证迁移后的 Worker 仍可访问。
+
+## 4. Secrets 与环境变量
+
+- 本地开发：在根目录或 `apps/worker/` 下放置 `.dev.vars`，包含 `JWT_SECRET`、`TURNSTILE_SECRET`、`TURNSTILE_SITE_KEY`、`CF_ACCESS_*`、`CORS_ORIGINS` 等，多个域名用逗号分隔。
+- 生产：通过 `wrangler secret put JWT_SECRET` 等命令注入 Cloudflare Secrets，并确保 `infra/wrangler.toml` 的 `[vars]` 中声明了这些键以便 wrangler 读取。
+
+## 5. 发布 Worker
 
 ## 4. 发布 Worker
 
@@ -37,13 +47,13 @@ wrangler deploy --config infra/wrangler.toml
 
 Wrangler 会使用 `main = "../apps/worker/src/index.ts"` 生成最新 bundle，并绑定 D1/KV/R2。
 
-## 5. 部署 Admin
+## 6. 部署 Admin 与 Site
 
 1. `pnpm --filter @gmgncard/admin build`，产物位于 `apps/admin/dist`。
 2. 上传到 Cloudflare Pages（可通过 GitHub Actions 或 `wrangler pages deploy apps/admin/dist`）。
 3. 在 Pages 项目设置 `VITE_WORKER_BASE=https://<worker-domain>`，等待构建完成。
 
-## 6. 发布后验证
+## 7. 发布后验证
 
 1. 运行 `pnpm smoke`，`WORKER_BASE` 指向生产域名。
 2. 打开生产 Admin，使用管理员账户登录并执行一次链接操作。

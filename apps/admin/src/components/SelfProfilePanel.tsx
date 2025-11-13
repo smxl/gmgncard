@@ -11,9 +11,13 @@ const emptyState: VerificationRequestPayload = {
   fSize: '',
   topPosition: '',
   bottomPosition: '',
+  versPosition: '',
   sidePreference: '',
+  hidePosition: false,
   notes: '',
-  age: undefined
+  age: undefined,
+  height: undefined,
+  weight: undefined
 };
 
 export const SelfProfilePanel = () => {
@@ -31,9 +35,13 @@ export const SelfProfilePanel = () => {
         fSize: profile.fSize ?? '',
         topPosition: profile.topPosition ?? '',
         bottomPosition: profile.bottomPosition ?? '',
+        versPosition: profile.versPosition ?? '',
         sidePreference: profile.sidePreference ?? '',
+        hidePosition: profile.hidePosition ?? false,
         notes: profile.notes ?? '',
         age: profile.age,
+        height: profile.height,
+        weight: profile.weight,
         features: profile.features ?? undefined
       });
     }
@@ -85,14 +93,38 @@ export const SelfProfilePanel = () => {
           Bottom Size
           <input value={form.fSize ?? ''} onChange={(e) => setForm((prev) => ({ ...prev, fSize: e.target.value }))} />
         </label>
-        <label>
-          年龄
-          <input
-            type="number"
-            value={form.age ?? ''}
-            onChange={(e) => setForm((prev) => ({ ...prev, age: e.target.value ? Number(e.target.value) : undefined }))}
-          />
-        </label>
+        <div className="grid grid-cols-2 gap-4">
+          <label>
+            年龄
+            <input
+              type="number"
+              value={form.age ?? ''}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, age: e.target.value ? Number(e.target.value) : undefined }))
+              }
+            />
+          </label>
+          <label>
+            身高 (cm)
+            <input
+              type="number"
+              value={form.height ?? ''}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, height: e.target.value ? Number(e.target.value) : undefined }))
+              }
+            />
+          </label>
+          <label>
+            体重 (kg)
+            <input
+              type="number"
+              value={form.weight ?? ''}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, weight: e.target.value ? Number(e.target.value) : undefined }))
+              }
+            />
+          </label>
+        </div>
         <label>
           Top Position
           <input value={form.topPosition ?? ''} onChange={(e) => setForm((prev) => ({ ...prev, topPosition: e.target.value }))} />
@@ -102,8 +134,20 @@ export const SelfProfilePanel = () => {
           <input value={form.bottomPosition ?? ''} onChange={(e) => setForm((prev) => ({ ...prev, bottomPosition: e.target.value }))} />
         </label>
         <label>
+          Vers Position
+          <input value={form.versPosition ?? ''} onChange={(e) => setForm((prev) => ({ ...prev, versPosition: e.target.value }))} />
+        </label>
+        <label>
           Side Preference
           <input value={form.sidePreference ?? ''} onChange={(e) => setForm((prev) => ({ ...prev, sidePreference: e.target.value }))} />
+        </label>
+        <label className="checkbox">
+          <input
+            type="checkbox"
+            checked={form.hidePosition ?? false}
+            onChange={(e) => setForm((prev) => ({ ...prev, hidePosition: e.target.checked }))}
+          />
+          不公开 Position
         </label>
         <label>
           备注 / Features

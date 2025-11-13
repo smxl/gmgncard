@@ -76,12 +76,16 @@ const renderStats = (user: UserDTO) => {
   if (!profile) return '';
 
   const items: string[] = [];
-  if (profile.pSize) items.push(`<li>Top: ${escapeHtml(profile.pSize)}</li>`);
-  if (profile.fSize) items.push(`<li>Bottom: ${escapeHtml(profile.fSize)}</li>`);
+  if (profile.pSize) items.push(`<li>Penis: ${escapeHtml(profile.pSize)}</li>`);
+  if (profile.fSize) items.push(`<li>Feet: ${escapeHtml(profile.fSize)}</li>`);
+  if (profile.height) items.push(`<li>Height: ${profile.height} cm</li>`);
+  if (profile.weight) items.push(`<li>Weight: ${profile.weight} kg</li>`);
   if (profile.age) items.push(`<li>Age: ${profile.age}</li>`);
   if (profile.topPosition) items.push(`<li>Top pref: ${escapeHtml(profile.topPosition)}</li>`);
   if (profile.bottomPosition) items.push(`<li>Bottom pref: ${escapeHtml(profile.bottomPosition)}</li>`);
+  if (profile.versPosition) items.push(`<li>Vers pref: ${escapeHtml(profile.versPosition)}</li>`);
   if (profile.sidePreference) items.push(`<li>Side: ${escapeHtml(profile.sidePreference)}</li>`);
+  if (profile.hidePosition) items.push('<li>Positions hidden</li>');
 
   if (!items.length) return '';
 

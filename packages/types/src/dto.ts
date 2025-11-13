@@ -9,6 +9,8 @@ export interface VerificationProfile {
   pSize?: string;
   fSize?: string;
   age?: number;
+  height?: number;
+  weight?: number;
   wechatQrUrl?: string;
   groupQrUrl?: string;
   extra?: Record<string, unknown>;
@@ -18,7 +20,9 @@ export interface VerificationProfile {
   qrAccess?: boolean;
   topPosition?: string;
   bottomPosition?: string;
+  versPosition?: string;
   sidePreference?: string;
+  hidePosition?: boolean;
   features?: Record<string, unknown>;
 }
 
@@ -130,13 +134,17 @@ export interface VerificationRequestPayload {
   pSize?: string;
   fSize?: string;
   age?: number;
+  height?: number;
+  weight?: number;
   wechatQrUrl?: string;
   groupQrUrl?: string;
   extra?: Record<string, unknown>;
   notes?: string;
   topPosition?: string;
   bottomPosition?: string;
+  versPosition?: string;
   sidePreference?: string;
+  hidePosition?: boolean;
   features?: Record<string, unknown>;
 }
 
