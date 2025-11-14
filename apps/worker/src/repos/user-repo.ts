@@ -160,7 +160,7 @@ export class UserRepository {
   }
 
   async updateProfile(userId: number, payload: UpdateUserProfilePayload) {
-    const upsertPayload = {
+    const baseProfile = {
       userId,
       verificationStatus: payload.verificationStatus ?? 'pending',
       pSize: payload.pSize,
@@ -172,13 +172,17 @@ export class UserRepository {
       groupQrUrl: payload.groupQrUrl,
       extra: payload.extra ?? null,
       notes: payload.notes,
-      qrAccess: payload.qrAccess ?? false,
       positionTop: payload.topPosition,
       positionBottom: payload.bottomPosition,
       positionVers: payload.versPosition,
       positionSide: payload.sidePreference,
-      positionHide: payload.hidePosition ? 1 : 0,
+      positionHide: payload.hidePosition ?? false,
       features: payload.features ?? null
+    };
+
+    const insertPayload = {
+      ...baseProfile,
+      qrAccess: payload.qrAccess ?? false
     };
 
     const shouldUpdateVerification =
@@ -186,15 +190,12 @@ export class UserRepository {
 
     await this.db
       .insert(userProfiles)
-      .values(upsertPayload)
+      .values(insertPayload)
       .onConflictDoUpdate({
         target: userProfiles.userId,
         set: {
-          ...upsertPayload,
-          qrAccess:
-            typeof payload.qrAccess === 'boolean'
-              ? payload.qrAccess
-              : userProfiles.qrAccess,
+          ...baseProfile,
+          ...(payload.qrAccess === undefined ? {} : { qrAccess: payload.qrAccess }),
           updatedAt: sql`CURRENT_TIMESTAMP`,
           ...(shouldUpdateVerification
             ? { verifiedAt: sql`CURRENT_TIMESTAMP` }
@@ -286,7 +287,9 @@ export class UserRepository {
             versPosition: profile.positionVers ?? undefined,
             sidePreference: profile.positionSide ?? undefined,
             hidePosition: Boolean(profile.positionHide),
-            features: profile.features ?? undefined
+            features: profile.features ?? undefined,
+            createdAt: profile.createdAt ?? undefined,
+            updatedAt: profile.updatedAt ?? undefined
           }
         : undefined,
       links: userLinks,

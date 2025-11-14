@@ -1,4 +1,4 @@
-import type { Hono } from 'hono';
+import type { Context, Hono } from 'hono';
 import { HttpError } from '../utils/errors';
 import type { AppBindings } from '../types';
 import { UserRepository } from '../repos/user-repo';
@@ -8,7 +8,9 @@ import { renderProfilePage, renderNotFoundPage } from '../templates/profile';
 const getService = (env: AppBindings['Bindings']) =>
   new UserService(UserRepository.fromEnv(env));
 
-const renderHandle = async (c: Parameters<Parameters<typeof app.get>[1]>[0], handle: string) => {
+type PublicContext = Context<AppBindings>;
+
+const renderHandle = async (c: PublicContext, handle: string) => {
   const service = getService(c.env);
   try {
     const user = await service.getByHandle(handle);
@@ -24,12 +26,18 @@ const renderHandle = async (c: Parameters<Parameters<typeof app.get>[1]>[0], han
 export const registerPublicRoutes = (app: Hono<AppBindings>) => {
   app.get('/@:handle', (c) => {
     const handle = c.req.param('handle');
+    if (!handle) {
+      throw new HttpError(400, 'Handle is required');
+    }
     return renderHandle(c, handle);
   });
 
   app.get('/:handle', (c) => {
-    const param = c.req.param('handle');
+    const param = c.req.param('handle') ?? '';
     const normalized = param.startsWith('@') ? param.slice(1) : param;
+    if (!normalized) {
+      throw new HttpError(400, 'Handle is required');
+    }
     return renderHandle(c, normalized);
   });
 };

@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { ZodError } from 'zod';
-import type { StatusCode } from 'hono/utils/http-status';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import type { AppBindings } from './types';
 import { requestContext } from './middleware/request-context';
 import { corsMiddleware } from './middleware/cors';
@@ -46,13 +46,14 @@ registerPublicRoutes(app);
 
 app.onError((err, c) => {
   if (isHttpError(err)) {
+    const safeStatus = toContentfulStatus(err.status);
     return c.json(
       {
         error: err.message,
         details: err.details,
         requestId: c.get('requestId')
       },
-      err.status as StatusCode
+      safeStatus
     );
   }
 
@@ -80,5 +81,19 @@ app.onError((err, c) => {
 app.notFound((c) => {
   throw new HttpError(404, `Route ${c.req.path} not found`);
 });
+
+const toContentfulStatus = (status?: number): ContentfulStatusCode => {
+  if (!status) {
+    return 500;
+  }
+  if (status < 200 || status > 599) {
+    return 500;
+  }
+  const notAllowed = new Set([101, 204, 205, 304]);
+  if (notAllowed.has(status)) {
+    return 500;
+  }
+  return status as ContentfulStatusCode;
+};
 
 export default app;

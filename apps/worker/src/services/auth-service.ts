@@ -6,7 +6,7 @@ import {
   type RegisterPayload
 } from '@gmgncard/types';
 import { HttpError } from '../utils/errors';
-import { signJwt, verifyJwt } from '../utils/jwt';
+import { signJwt, verifyJwt, type JwtPayload } from '../utils/jwt';
 import { UserRepository } from '../repos/user-repo';
 import type { WorkerEnv } from '../types';
 
@@ -80,10 +80,8 @@ export class AuthService {
   }
 
   async verify(token: string) {
-    const payload = await verifyJwt<{ sub: string; handle: string; role: string }>(
-      token,
-      this.env.JWT_SECRET
-    );
+    type AuthTokenPayload = JwtPayload & { handle: string; role?: string };
+    const payload = await verifyJwt<AuthTokenPayload>(token, this.env.JWT_SECRET);
     const user = await this.repo.findByHandle(payload.handle);
     if (!user) {
       throw new HttpError(401, 'User no longer exists');

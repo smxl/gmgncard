@@ -1,5 +1,5 @@
 import { createDb, schema, type Database } from '@gmgncard/db';
-import type { CreateReportPayload, ReportDTO } from '@gmgncard/types';
+import type { CreateReportPayload, ReportDTO, ReportStatus } from '@gmgncard/types';
 import { desc, eq } from 'drizzle-orm';
 import { RESOURCE_IDS } from '@gmgncard/config';
 import type { WorkerEnv } from '../types';
@@ -58,7 +58,7 @@ export class ReportRepository {
     };
   }
 
-  async updateStatus(id: number, status: typeof reports.status._type) {
+  async updateStatus(id: number, status: ReportStatus) {
     const [updated] = await this.db
       .update(reports)
       .set({ status })

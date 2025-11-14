@@ -24,6 +24,8 @@ export interface VerificationProfile {
   sidePreference?: string;
   hidePosition?: boolean;
   features?: Record<string, unknown>;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface LinkTypeDTO {

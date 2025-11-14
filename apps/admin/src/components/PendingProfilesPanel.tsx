@@ -113,7 +113,6 @@ const ProfileReviewForm = ({
 }) => {
   const profile = user.profile;
   const [qrAccess, setQrAccess] = useState(Boolean(profile?.qrAccess));
-  const [rejectReason, setRejectReason] = useState('');
 
   return (
     <div>

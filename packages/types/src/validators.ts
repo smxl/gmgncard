@@ -22,7 +22,9 @@ export const verificationProfileSchema = z.object({
   versPosition: z.string().max(32).optional(),
   sidePreference: z.string().max(32).optional(),
   hidePosition: z.boolean().optional(),
-  features: metadataSchema.optional()
+  features: metadataSchema.optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional()
 });
 
 export const linkTypeSchema = z.object({

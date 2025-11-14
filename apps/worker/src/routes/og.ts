@@ -2,6 +2,7 @@ import type { Hono } from 'hono';
 import type { AppBindings } from '../types';
 import { UserService } from '../services/user-service';
 import { UserRepository } from '../repos/user-repo';
+import { HttpError } from '../utils/errors';
 
 const getService = (env: AppBindings['Bindings']) =>
   new UserService(UserRepository.fromEnv(env));
@@ -62,7 +63,11 @@ const escapeHtml = (value: string) =>
 export const registerOgRoutes = (app: Hono<AppBindings>) => {
   app.get('/og/:handle.svg', async (c) => {
     const service = getService(c.env);
-    const user = await service.getByHandle(c.req.param('handle'));
+    const handle = c.req.param('handle');
+    if (!handle) {
+      throw new HttpError(400, 'Handle is required');
+    }
+    const user = await service.getByHandle(handle);
     const svg = svgTemplate(user);
     return new Response(svg, {
       headers: {
