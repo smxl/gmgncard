@@ -10,14 +10,9 @@ pnpm dev:worker      # 启动 Cloudflare Worker (wrangler dev)
 pnpm dev:admin       # 启动 Admin 前端 (Vite)
 pnpm dev:site        # 启动公开 Landing 页 (Vite)
 pnpm smoke           # 快速调用公共 API 进行冒烟检查
-# schema 变更后执行以下 migration 与 seed（按顺序）
-wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/0001_init.sql
-wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/0002_auth.sql
-wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/0003_qr_access.sql
-wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/0004_profile_extended.sql
-wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/0005_featured_users.sql
-wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/0006_profile_positions.sql
-wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/seed/dev_seed.sql
+# schema 变更或重新初始化时，可运行以下命令
+pnpm migrate            # 应用到远端 D1
+pnpm migrate:local      # 应用到本地 D1 (--local)
 ```
 
 其他脚本：

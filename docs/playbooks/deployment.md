@@ -22,10 +22,8 @@ pnpm smoke            # 确保 Worker API 正常
 按顺序执行所有未应用的 SQL（生产环境去掉 `--local`）：
 
 ```bash
-for file in 0001_init 0002_auth 0003_qr_access 0004_profile_extended 0005_featured_users 0006_profile_positions; do
-  wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/migrations/$file.sql
-done
-wrangler d1 execute gmgncard-db --config infra/wrangler.toml --file packages/db/seed/dev_seed.sql
+pnpm migrate        # 默认执行远端迁移
+pnpm migrate:local  # 在本地环境执行（带 --local）
 ```
 
 > 建议在 PR/部署前运行 `pnpm smoke` 验证迁移后的 Worker 仍可访问。

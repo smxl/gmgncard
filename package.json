@@ -10,6 +10,8 @@
     "lint": "pnpm -r lint",
     "format": "pnpm -r format --if-present",
     "test": "pnpm -r test --if-present",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "migrate": "node scripts/run-migrations.mjs",
+    "migrate:local": "node scripts/run-migrations.mjs --local"
   }
 }
