@@ -97,13 +97,41 @@ const renderStats = (user: UserDTO) => {
   `;
 };
 
-export const renderProfilePage = (user: UserDTO) => `<!doctype html>
+const buildOgDescription = (user: UserDTO) => {
+  const profile = user.profile;
+  if (!profile) {
+    return `${user.displayName} on GMGN Card`;
+  }
+  const parts: string[] = [];
+  if (profile.age) parts.push(`Age ${profile.age}`);
+  if (profile.height) parts.push(`${profile.height}cm`);
+  if (profile.weight) parts.push(`${profile.weight}kg`);
+  if (profile.pSize) parts.push(`Penis ${profile.pSize}`);
+  if (profile.fSize) parts.push(`Foot ${profile.fSize}`);
+  if (profile.versPosition) parts.push(profile.versPosition);
+  if (profile.verificationStatus) parts.push(profile.verificationStatus);
+  return parts.join(' · ') || `${user.displayName} on GMGN Card`;
+};
+
+export const renderProfilePage = (user: UserDTO) => {
+  const ogDescription = buildOgDescription(user);
+  const ogImage = `/og/${encodeURIComponent(user.handle)}.svg`;
+  return `<!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${escapeHtml(user.displayName)} · GMGN Card</title>
-    <style>
+    <link rel="icon" href="/favicon.svg" />
+    <meta property="og:title" content="${escapeHtml(user.displayName)} · @${escapeHtml(user.handle)}" />
+    <meta property="og:description" content="${escapeHtml(ogDescription)}" />
+    <meta property="og:image" content="${ogImage}" />
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content="GMGN Card" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(user.displayName)}" />
+    <meta name="twitter:description" content="${escapeHtml(ogDescription)}" />
+  <style>
       :root {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         color: #0f172a;
@@ -253,6 +281,7 @@ export const renderProfilePage = (user: UserDTO) => `<!doctype html>
     </div>
   </body>
 </html>`;
+};
 
 export const renderNotFoundPage = (handle: string) => `<!doctype html>
 <html lang="zh-CN">

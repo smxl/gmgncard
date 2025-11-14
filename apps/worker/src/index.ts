@@ -12,6 +12,8 @@ import { registerAuthRoutes } from './routes/auth';
 import { registerPublicRoutes } from './routes/public';
 import { registerLinkRoutes } from './routes/links';
 import { registerPlazaRoutes } from './routes/plaza';
+import { registerOgRoutes } from './routes/og';
+import { registerStaticRoutes } from './routes/static';
 import { withRequestMeta } from './utils/responses';
 import { HttpError, isHttpError } from './utils/errors';
 
@@ -28,6 +30,7 @@ registerReportRoutes(api);
 registerAuthRoutes(api);
 registerLinkRoutes(api);
 registerPlazaRoutes(api);
+registerOgRoutes(app);
 
 app.route('/api', api);
 
@@ -38,6 +41,7 @@ app.get('/', (c) =>
   })
 );
 
+registerStaticRoutes(app);
 registerPublicRoutes(app);
 
 app.onError((err, c) => {
