@@ -98,6 +98,18 @@ export class UserRepository {
     return rows.map((row) => this.toUserDto(row, linksByUser.get(row.user.id ?? -1)));
   }
 
+  async exportAll() {
+    const rows = await this.db
+      .select({ user: users, profile: userProfiles })
+      .from(users)
+      .leftJoin(userProfiles, eq(userProfiles.userId, users.id))
+      .orderBy(desc(users.updatedAt));
+
+    const userIds = rows.map((row) => row.user.id!).filter(Boolean);
+    const linksByUser = await this.loadLinksForUsers(userIds);
+    return rows.map((row) => this.toUserDto(row, linksByUser.get(row.user.id ?? -1)));
+  }
+
   async findByHandle(handle: string) {
     const rows = await this.db
       .select({
@@ -133,6 +145,8 @@ export class UserRepository {
     email?: string;
     passwordHash?: string;
     role?: string;
+    bio?: string;
+    avatarUrl?: string;
   }) {
     const [created] = await this.db
       .insert(users)
@@ -140,11 +154,30 @@ export class UserRepository {
         handle: data.handle,
         displayName: data.displayName,
         email: data.email,
+        bio: data.bio,
+        avatarUrl: data.avatarUrl,
         passwordHash: data.passwordHash,
         role: data.role ?? 'user'
       })
       .returning();
     return created;
+  }
+
+  async updateUserBasics(
+    userId: number,
+    values: Partial<{ displayName: string; email: string; bio: string; avatarUrl: string }>
+  ) {
+    const payload: Record<string, unknown> = {};
+    if (values.displayName !== undefined) payload.displayName = values.displayName;
+    if (values.email !== undefined) payload.email = values.email;
+    if (values.bio !== undefined) payload.bio = values.bio;
+    if (values.avatarUrl !== undefined) payload.avatarUrl = values.avatarUrl;
+
+    if (Object.keys(payload).length === 0) {
+      return;
+    }
+
+    await this.db.update(users).set(payload).where(eq(users.id, userId)).run();
   }
 
   async updateUserMeta(handle: string, values: Partial<{ isFeatured: boolean; adLabel: string | null }>) {
@@ -204,6 +237,29 @@ export class UserRepository {
       });
 
     return this.getUserById(userId);
+  }
+
+  async updateQrFields(
+    userId: number,
+    payload: { wechatQrUrl?: string | null; groupQrUrl?: string | null }
+  ) {
+    const updates: Record<string, unknown> = {};
+    if (payload.wechatQrUrl !== undefined) {
+      updates.wechatQrUrl = payload.wechatQrUrl;
+    }
+    if (payload.groupQrUrl !== undefined) {
+      updates.groupQrUrl = payload.groupQrUrl;
+    }
+    if (Object.keys(updates).length === 0) return;
+
+    await this.db
+      .update(userProfiles)
+      .set({
+        ...updates,
+        updatedAt: sql`CURRENT_TIMESTAMP`
+      })
+      .where(eq(userProfiles.userId, userId))
+      .run();
   }
 
   private async getUserById(userId: number) {

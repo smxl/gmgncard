@@ -2,6 +2,7 @@ import { Hero } from '../sections/Hero';
 import { Features } from '../sections/Features';
 import { Showcase } from '../sections/Showcase';
 import { Plaza } from '../sections/Plaza';
+import { SelfServe } from '../sections/SelfServe';
 import { CTA } from '../sections/CTA';
 
 const App = () => (
@@ -10,6 +11,7 @@ const App = () => (
     <Features />
     <Showcase />
     <Plaza />
+    <SelfServe />
     <CTA />
   </div>
 );

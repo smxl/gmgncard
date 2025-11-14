@@ -117,6 +117,17 @@ export interface UserDTO {
   updatedAt?: string;
 }
 
+export interface PublicProfileRequestPayload {
+  handle: string;
+  displayName: string;
+  email: string;
+  password: string;
+  bio?: string;
+  profile: VerificationRequestPayload;
+  links?: UpsertLinkPayload[];
+  turnstileToken: string;
+}
+
 export interface PaginatedResult<T> {
   items: T[];
   total: number;

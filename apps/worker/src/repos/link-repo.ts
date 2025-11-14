@@ -1,10 +1,10 @@
 import { createDb, schema, type Database } from '@gmgncard/db';
 import type { UpsertLinkPayload, LinkDTO } from '@gmgncard/types';
-import { asc, eq } from 'drizzle-orm';
+import { asc, eq, sql } from 'drizzle-orm';
 import { RESOURCE_IDS } from '@gmgncard/config';
 import type { WorkerEnv } from '../types';
 
-const { links, linkTypes } = schema;
+const { links, linkTypes, visits } = schema;
 
 export class LinkRepository {
   constructor(private readonly db: Database) {}
@@ -81,5 +81,49 @@ export class LinkRepository {
 
   async deleteLink(linkId: number) {
     await this.db.delete(links).where(eq(links.id, linkId)).run();
+  }
+
+  async replaceLinksForUser(userId: number, payloads: UpsertLinkPayload[]) {
+    await this.db.delete(links).where(eq(links.userId, userId)).run();
+    if (!payloads.length) {
+      return;
+    }
+    await this.db
+      .insert(links)
+      .values(
+        payloads.map((payload) => ({
+          userId,
+          title: payload.title,
+          url: payload.url,
+          order: payload.order ?? 0,
+          isHidden: payload.isHidden ?? false,
+          typeId: payload.typeId,
+          metadata: payload.metadata ?? null
+        }))
+      )
+      .run();
+  }
+
+  async recordVisit(
+    linkId: number,
+    meta: { userAgent?: string; referrer?: string; country?: string }
+  ) {
+    await this.db
+      .insert(visits)
+      .values({
+        linkId,
+        userAgent: meta.userAgent ?? null,
+        referrer: meta.referrer ?? null,
+        country: meta.country ?? null
+      })
+      .run();
+
+    await this.db
+      .update(links)
+      .set({
+        clicks: sql`${links.clicks} + 1`
+      })
+      .where(eq(links.id, linkId))
+      .run();
   }
 }

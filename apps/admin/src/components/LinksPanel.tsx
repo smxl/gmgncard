@@ -58,6 +58,15 @@ export const LinksPanel = () => {
     onSuccess: invalidate
   });
 
+  const reorderMutation = useMutation({
+    mutationFn: ({ link, direction }: { link: LinkDTO; direction: number }) =>
+      adminApi.updateLink(handle, link.id, {
+        ...linkToPayload(link),
+        order: (link.order ?? 0) + direction
+      }),
+    onSuccess: invalidate
+  });
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     await createMutation.mutateAsync(form);
@@ -88,9 +97,28 @@ export const LinksPanel = () => {
               <div>
                 <strong>{link.title}</strong>
                 <span>{link.url}</span>
+                <small className="text-xs text-slate-400">点击 {link.clicks}</small>
               </div>
               <div className="link-actions">
                 <StatusBadge tone={link.isHidden ? 'warning' : 'success'} label={link.isHidden ? '隐藏' : '显示'} />
+                <div className="order-actions">
+                  <button
+                    type="button"
+                    className="ghost-btn"
+                    onClick={() => reorderMutation.mutate({ link, direction: -1 })}
+                    disabled={!token || reorderMutation.isPending}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    className="ghost-btn"
+                    onClick={() => reorderMutation.mutate({ link, direction: 1 })}
+                    disabled={!token || reorderMutation.isPending}
+                  >
+                    ↓
+                  </button>
+                </div>
                 <button
                   className="ghost-btn"
                   type="button"

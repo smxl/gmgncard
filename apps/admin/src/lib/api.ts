@@ -150,7 +150,8 @@ export const adminApi = {
       method: 'POST',
       body: JSON.stringify(payload)
     }),
-  listReports: () => request<ReportDTO[]>(API_ROUTES.reports),
+  listReports: (params: { status?: string } = {}) =>
+    request<ReportDTO[]>(`${API_ROUTES.reports}${buildQuery(params)}`),
   updateReportStatus: (reportId: number, status: ReportStatus) =>
     request<ReportDTO>(`${API_ROUTES.reports}/${reportId}`, {
       method: 'PATCH',

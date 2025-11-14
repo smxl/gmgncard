@@ -9,12 +9,16 @@ interface PlazaUserMeta {
   displayName: string;
   isFeatured?: boolean;
   adLabel?: string;
+  profile?: {
+    verificationStatus?: string;
+  } | null;
 }
 
 export const PlazaAdminPanel = () => {
   const { token, user } = useAuth();
   const [items, setItems] = useState<PlazaUserMeta[]>([]);
   const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     if (!token) return;
@@ -39,21 +43,38 @@ export const PlazaAdminPanel = () => {
     setItems(response.data);
   };
 
+  const filteredItems = items.filter((item) =>
+    item.handle.includes(search.toLowerCase()) || item.displayName.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <Card title="Plaza 设置" description="配置精选用户与广告标签">
+    <Card
+      title="Plaza 设置"
+      description="配置精选用户与广告标签"
+      actions={
+        <input
+          className="plaza-input"
+          placeholder="搜索 handle"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+      }
+    >
       {loading && <p className="muted">加载中…</p>}
       <table className="plaza-table">
         <thead>
           <tr>
             <th>用户名</th>
+            <th>状态</th>
             <th>精选</th>
             <th>广告标签</th>
           </tr>
         </thead>
         <tbody>
-          {items.map((item) => (
+          {filteredItems.map((item) => (
             <tr key={item.id}>
               <td>@{item.handle}</td>
+              <td>{item.profile?.verificationStatus ?? 'pending'}</td>
               <td>
                 <input
                   type="checkbox"

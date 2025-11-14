@@ -13,16 +13,18 @@ export class ReportRepository {
     return new ReportRepository(createDb(env[RESOURCE_IDS.d1]));
   }
 
-  async list(limit = 50): Promise<ReportDTO[]> {
-    const rows = await this.db
+  async list(limit = 50, status?: ReportStatus): Promise<ReportDTO[]> {
+    const baseQuery = this.db
       .select({
         report: reports,
         linkTitle: links.title
       })
       .from(reports)
-      .leftJoin(links, eq(links.id, reports.linkId))
-      .orderBy(desc(reports.createdAt))
-      .limit(limit);
+      .leftJoin(links, eq(links.id, reports.linkId));
+
+    const filtered = status ? baseQuery.where(eq(reports.status, status)) : baseQuery;
+
+    const rows = await filtered.orderBy(desc(reports.createdAt)).limit(limit);
 
     return rows.map((row) => ({
       id: row.report.id!,

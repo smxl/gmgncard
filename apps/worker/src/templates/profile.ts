@@ -12,7 +12,7 @@ const renderLinks = (user: UserDTO) => {
     .filter((link) => !link.isHidden)
     .map(
       (link) => `
-        <a class="link-card" href="${link.url}" target="_blank" rel="noopener noreferrer">
+        <a class="link-card" data-link-id="${link.id}" data-handle="${user.handle}" href="${link.url}" target="_blank" rel="noopener noreferrer">
           <span>${escapeHtml(link.title)}</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
         </a>
@@ -279,6 +279,27 @@ export const renderProfilePage = (user: UserDTO) => {
         Powered by GMGN Card
       </footer>
     </div>
+    <script>
+    (() => {
+      const endpoint = '/api/metrics/links';
+      const supportsBeacon = typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function';
+      if (!supportsBeacon) return;
+      document.querySelectorAll('.link-card').forEach((el) => {
+        el.addEventListener('click', () => {
+          const linkId = el.getAttribute('data-link-id');
+          if (!linkId) return;
+          const payload = JSON.stringify({
+            linkId,
+            handle: el.getAttribute('data-handle')
+          });
+          navigator.sendBeacon(
+            endpoint,
+            new Blob([payload], { type: 'application/json' })
+          );
+        });
+      });
+    })();
+  </script>
   </body>
 </html>`;
 };

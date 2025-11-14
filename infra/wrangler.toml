@@ -9,7 +9,7 @@ TURNSTILE_SECRET = "dummy"
 TURNSTILE_SITE_KEY = "dummy"
 CF_ACCESS_AUD = "dummy"
 CF_ACCESS_TEAM = "dummy"
-CORS_ORIGINS = "http://localhost:4173"
+CORS_ORIGINS = "http://localhost:4173,http://localhost:4174"
 
 [[d1_databases]]
 binding = "GMGNCARD_DB"
@@ -23,3 +23,13 @@ id = "00000000000000000000000000000000"
 [[r2_buckets]]
 binding = "GMGNCARD_R2"
 bucket_name = "gmgncard-r2"
+
+[[queues.producers]]
+queue = "gmgncard-jobs"
+binding = "GMGNCARD_QUEUE"
+
+[[queues.consumers]]
+queue = "gmgncard-jobs"
+
+[triggers]
+crons = ["0 6 * * *"]

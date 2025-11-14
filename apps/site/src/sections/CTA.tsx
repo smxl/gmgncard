@@ -14,6 +14,12 @@ export const CTA = () => (
           联系销售
         </a>
         <a
+          className="px-8 py-3 rounded-full border border-indigo-500 text-indigo-200"
+          href="#join"
+        >
+          自助提交资料
+        </a>
+        <a
           className="px-8 py-3 rounded-full border border-slate-700"
           href="https://github.com/smxl/gmgncard"
           target="_blank"

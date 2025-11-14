@@ -6,9 +6,9 @@ import { HttpError } from '../utils/errors';
 export class ReportService {
   constructor(private readonly repo: ReportRepository) {}
 
-  async list(limit = 50): Promise<ReportDTO[]> {
+  async list(limit = 50, status?: ReportStatus): Promise<ReportDTO[]> {
     const safeLimit = Math.min(Math.max(limit, 1), 100);
-    return this.repo.list(safeLimit);
+    return this.repo.list(safeLimit, status);
   }
 
   async submit(payload: CreateReportPayload) {

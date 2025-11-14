@@ -4,7 +4,7 @@ import { ReportRepository } from '../repos/report-repo';
 import { ReportService } from '../services/report-service';
 import { withRequestMeta } from '../utils/responses';
 import { requireAuth } from '../middleware/auth';
-import { updateReportStatusSchema } from '@gmgncard/types';
+import { reportStatuses, updateReportStatusSchema, type ReportStatus } from '@gmgncard/types';
 
 const getService = (env: AppBindings['Bindings']) =>
   new ReportService(ReportRepository.fromEnv(env));
@@ -13,8 +13,13 @@ export const registerReportRoutes = (router: Hono<AppBindings>) => {
   router.get('/reports', async (c) => {
     const limit = Number.parseInt(c.req.query('limit') ?? '', 10);
     const service = getService(c.env);
+    const statusParam = c.req.query('status');
+    const status = reportStatuses.includes((statusParam ?? '') as ReportStatus)
+      ? (statusParam as ReportStatus)
+      : undefined;
     const reports = await service.list(
-      Number.isFinite(limit) && limit > 0 ? limit : undefined
+      Number.isFinite(limit) && limit > 0 ? limit : undefined,
+      status
     );
     return withRequestMeta(c, reports);
   });

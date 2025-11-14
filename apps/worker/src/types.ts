@@ -1,7 +1,11 @@
+import type { Queue } from '@cloudflare/workers-types';
+import type { QueueJob } from './jobs/types';
+
 export interface WorkerEnv {
   GMGNCARD_DB: D1Database;
   GMGNCARD_KV: KVNamespace;
   GMGNCARD_R2?: R2Bucket;
+  GMGNCARD_QUEUE?: Queue<QueueJob>;
   JWT_SECRET: string;
   TURNSTILE_SECRET: string;
   TURNSTILE_SITE_KEY: string;

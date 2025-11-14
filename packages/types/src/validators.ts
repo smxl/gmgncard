@@ -171,6 +171,17 @@ export const upsertLinkSchema = z.object({
   metadata: metadataSchema.optional()
 });
 
+export const publicProfileRequestSchema = z.object({
+  handle: z.string().min(3).max(32),
+  displayName: z.string().min(1).max(64),
+  email: z.string().email(),
+  password: z.string().min(6),
+  bio: z.string().max(280).optional(),
+  profile: verificationRequestSchema,
+  links: z.array(upsertLinkSchema).max(10).optional(),
+  turnstileToken: z.string().min(10)
+});
+
 export const settingsUpdateSchema = z
   .object({
     theme: z.string().min(1).optional(),

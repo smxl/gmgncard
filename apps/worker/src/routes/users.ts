@@ -42,6 +42,38 @@ export const registerUserRoutes = (router: Hono<AppBindings>) => {
       const body = await c.req.json();
       const service = getService(c.env);
       const updated = await service.updateProfile(c.req.param('handle'), body);
+      if (c.env.GMGNCARD_QUEUE && updated?.id) {
+        const jobs: Promise<unknown>[] = [];
+        if (body.wechatQrUrl) {
+          jobs.push(
+            c.env.GMGNCARD_QUEUE.send({
+              type: 'qr-cache',
+              payload: {
+                userId: updated.id,
+                handle: updated.handle,
+                target: 'wechat',
+                sourceUrl: body.wechatQrUrl
+              }
+            })
+          );
+        }
+        if (body.groupQrUrl) {
+          jobs.push(
+            c.env.GMGNCARD_QUEUE.send({
+              type: 'qr-cache',
+              payload: {
+                userId: updated.id,
+                handle: updated.handle,
+                target: 'group',
+                sourceUrl: body.groupQrUrl
+              }
+            })
+          );
+        }
+        if (jobs.length) {
+          c.executionCtx?.waitUntil(Promise.all(jobs));
+        }
+      }
       return withRequestMeta(c, updated);
     }
   );
