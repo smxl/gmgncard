@@ -35,12 +35,16 @@ export const registerUserRoutes = (router: Hono<AppBindings>) => {
     return withRequestMeta(c, user);
   });
 
-  router.put('/users/:handle/profile', requireAuth({ role: 'admin' }), async (c) => {
-    const body = await c.req.json();
-    const service = getService(c.env);
-    const updated = await service.updateProfile(c.req.param('handle'), body);
-    return withRequestMeta(c, updated);
-  });
+  router.put(
+    '/users/:handle/profile',
+    requireAuth({ role: 'admin', allowSelf: { param: 'handle' } }),
+    async (c) => {
+      const body = await c.req.json();
+      const service = getService(c.env);
+      const updated = await service.updateProfile(c.req.param('handle'), body);
+      return withRequestMeta(c, updated);
+    }
+  );
 
   router.post(
     '/users/:handle/profile',

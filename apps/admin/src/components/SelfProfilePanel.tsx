@@ -49,11 +49,20 @@ export const SelfProfilePanel = () => {
     }
   }, [profileQuery.data]);
 
-  const mutation = useMutation({
+  const updateMutation = useMutation({
+    mutationFn: (payload: VerificationRequestPayload) => adminApi.updateProfile(handle!, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['user-profile', handle] });
+      setSuccess('资料已保存');
+      setFormError(null);
+    }
+  });
+
+  const requestVerificationMutation = useMutation({
     mutationFn: (payload: VerificationRequestPayload) => adminApi.submitProfile(handle!, payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['user-profile', handle] });
-      setSuccess('已提交审核，管理员通过后会自动展示。');
+      setSuccess('已提交审核，管理员通过后会展示验证标识。');
       setFormError(null);
     }
   });
@@ -97,7 +106,7 @@ export const SelfProfilePanel = () => {
         }
         setFormError(null);
         setSuccess(null);
-        mutation.mutate(form);
+        updateMutation.mutate(form);
       }}>
         <label>
           Top Size
@@ -181,10 +190,23 @@ export const SelfProfilePanel = () => {
         </label>
         {formError && <p className="error">{formError}</p>}
         {success && <p className="success">{success}</p>}
-        {mutation.error && <p className="error">{(mutation.error as Error).message}</p>}
-        <button type="submit" disabled={!token || mutation.isPending}>
-          {mutation.isPending ? '提交中…' : '提交审核'}
-        </button>
+        {updateMutation.error && <p className="error">{(updateMutation.error as Error).message}</p>}
+        {requestVerificationMutation.error && (
+          <p className="error">{(requestVerificationMutation.error as Error).message}</p>
+        )}
+        <div className="form-actions">
+          <button type="submit" disabled={!token || updateMutation.isPending}>
+            {updateMutation.isPending ? '保存中…' : '保存资料'}
+          </button>
+          <button
+            type="button"
+            className="ghost-btn"
+            onClick={() => requestVerificationMutation.mutate(form)}
+            disabled={!token || requestVerificationMutation.isPending}
+          >
+            {requestVerificationMutation.isPending ? '申请中…' : '申请验证'}
+          </button>
+        </div>
       </form>
     </Card>
   );
