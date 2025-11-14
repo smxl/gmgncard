@@ -180,6 +180,14 @@ export class UserRepository {
     await this.db.update(users).set(payload).where(eq(users.id, userId)).run();
   }
 
+  async updatePassword(userId: number, passwordHash: string) {
+    await this.db
+      .update(users)
+      .set({ passwordHash })
+      .where(eq(users.id, userId))
+      .run();
+  }
+
   async updateUserMeta(handle: string, values: Partial<{ isFeatured: boolean; adLabel: string | null }>) {
     const [updated] = await this.db
       .update(users)
@@ -205,10 +213,10 @@ export class UserRepository {
       groupQrUrl: payload.groupQrUrl,
       extra: payload.extra ?? null,
       notes: payload.notes,
-      positionTop: payload.topPosition,
-      positionBottom: payload.bottomPosition,
-      positionVers: payload.versPosition,
-      positionSide: payload.sidePreference,
+      positionTop: payload.topPosition ?? null,
+      positionBottom: payload.bottomPosition ?? null,
+      positionVers: payload.versPosition ?? null,
+      positionSide: payload.sidePreference ?? null,
       positionHide: payload.hidePosition ?? false,
       features: payload.features ?? null
     };

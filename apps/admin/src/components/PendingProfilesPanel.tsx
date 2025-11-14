@@ -121,30 +121,22 @@ const ProfileReviewForm = ({
         <p className="muted">@{user.handle}</p>
       </header>
       {profile ? (
-        <dl className="verification-summary">
-          <dt>Top Size</dt>
-          <dd>{profile.pSize || '-'}</dd>
-          <dt>Foot Size</dt>
-          <dd>{profile.fSize || '-'}</dd>
-          <dt>年龄</dt>
-          <dd>{profile.age ?? '-'}</dd>
-          <dt>身高</dt>
-          <dd>{profile.height ?? '-'} cm</dd>
-          <dt>体重</dt>
-          <dd>{profile.weight ?? '-'} kg</dd>
-          <dt>Top Position</dt>
-          <dd>{profile.topPosition ?? '-'}</dd>
-          <dt>Bottom Position</dt>
-          <dd>{profile.bottomPosition ?? '-'}</dd>
-          <dt>Vers</dt>
-          <dd>{profile.versPosition ?? '-'}</dd>
-          <dt>Side</dt>
-          <dd>{profile.sidePreference ?? '-'}</dd>
-          <dt>隐藏 Position</dt>
-          <dd>{profile.hidePosition ? 'Yes' : 'No'}</dd>
-          <dt>备注</dt>
-          <dd>{profile.notes ?? '-'}</dd>
-        </dl>
+        <>
+          <div className="chip-row chip-major">
+            {buildProfileChipGroups(profile).major.map((chip) => (
+              <span key={`major-${chip}`}>{chip}</span>
+            ))}
+          </div>
+          <div className="chip-row chip-minor">
+            {buildProfileChipGroups(profile).minor.map((chip) => (
+              <span key={`minor-${chip}`}>{chip}</span>
+            ))}
+          </div>
+          <dl className="verification-notes">
+            <dt>备注</dt>
+            <dd>{profile.notes ?? '-'}</dd>
+          </dl>
+        </>
       ) : (
         <p className="muted">尚未提交资料</p>
       )}
@@ -174,4 +166,30 @@ const ProfileReviewForm = ({
       />
     </div>
   );
+};
+const buildProfileChipGroups = (profile: UserDTO['profile']) => {
+  if (!profile) {
+    return { major: [] as string[], minor: [] as string[] };
+  }
+  const major: string[] = [];
+  const minor: string[] = [];
+  const positions: string[] = [];
+
+  if (profile.pSize) major.push(`Cock ${profile.pSize}`);
+  if (profile.fSize) major.push(`Foot ${profile.fSize}`);
+
+  if (profile.topPosition) positions.push('Top');
+  if (profile.versPosition) positions.push('Vers');
+  if (profile.bottomPosition) positions.push('Bottom');
+  if (profile.sidePreference) positions.push('Side');
+  if (profile.hidePosition) positions.push('Hidden');
+  if (positions.length) {
+    major.push(`Position ${positions.join(' / ')}`);
+  }
+
+  if (profile.age) minor.push(`Age ${profile.age}`);
+  if (profile.height) minor.push(`Height ${profile.height}cm`);
+  if (profile.weight) minor.push(`Weight ${profile.weight}kg`);
+
+  return { major, minor };
 };

@@ -9,6 +9,7 @@ import {
 } from '@gmgncard/types';
 import { UserRepository } from '../repos/user-repo';
 import { HttpError } from '../utils/errors';
+import { AuthService } from './auth-service';
 
 export class UserService {
   constructor(private readonly repo: UserRepository) {}
@@ -66,7 +67,23 @@ export class UserService {
       throw new HttpError(404, `User ${handle} not found`);
     }
 
-    const updated = await this.repo.updateProfile(user.id, parsed);
+    const { displayName, password, ...profilePayload } = parsed;
+
+    if (displayName) {
+      await this.repo.updateUserBasics(user.id, { displayName: displayName.trim() });
+    }
+
+    if (password) {
+      const hashed = await AuthService.hash(password);
+      await this.repo.updatePassword(user.id, hashed);
+    }
+
+    const updated = await this.repo.updateProfile(user.id, {
+      ...profilePayload,
+      sidePreference: profilePayload.sidePreference
+        ? (profilePayload.sidePreference as 'Left' | 'Right')
+        : undefined
+    });
 
     if (!updated) {
       throw new HttpError(500, 'Unable to update profile');
@@ -88,7 +105,8 @@ export class UserService {
     const updated = await this.repo.updateProfile(user.id, {
       ...base,
       verificationStatus: 'pending',
-      qrAccess: false
+      qrAccess: false,
+      sidePreference: base.sidePreference ? (base.sidePreference as 'Left' | 'Right') : undefined
     });
     if (!updated) {
       throw new HttpError(500, 'Unable to submit profile');

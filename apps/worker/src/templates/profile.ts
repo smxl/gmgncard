@@ -8,7 +8,7 @@ const renderLinks = (user: UserDTO) => {
     return '<p class="empty">该用户尚未添加链接。</p>';
   }
 
-  return user.links
+  const links = user.links
     .filter((link) => !link.isHidden)
     .map(
       (link) => `
@@ -19,6 +19,8 @@ const renderLinks = (user: UserDTO) => {
       `
     )
     .join('');
+
+  return `<div class="links-stack">${links}</div>`;
 };
 
 const renderButtons = (user: UserDTO) => {
@@ -71,30 +73,72 @@ const renderQrSection = (user: UserDTO) => {
   return `<section class="qr-grid">${qrBlocks.join('')}</section>`;
 };
 
-const renderStats = (user: UserDTO) => {
+const buildChipGroups = (user: UserDTO) => {
   const profile = user.profile;
-  if (!profile) return '';
+  if (!profile) {
+    return { major: [] as string[], minor: [] as string[] };
+  }
 
-  const items: string[] = [];
-  if (profile.pSize) items.push(`<li>Penis: ${escapeHtml(profile.pSize)}</li>`);
-  if (profile.fSize) items.push(`<li>Feet: ${escapeHtml(profile.fSize)}</li>`);
-  if (profile.height) items.push(`<li>Height: ${profile.height} cm</li>`);
-  if (profile.weight) items.push(`<li>Weight: ${profile.weight} kg</li>`);
-  if (profile.age) items.push(`<li>Age: ${profile.age}</li>`);
-  if (profile.topPosition) items.push(`<li>Top pref: ${escapeHtml(profile.topPosition)}</li>`);
-  if (profile.bottomPosition) items.push(`<li>Bottom pref: ${escapeHtml(profile.bottomPosition)}</li>`);
-  if (profile.versPosition) items.push(`<li>Vers pref: ${escapeHtml(profile.versPosition)}</li>`);
-  if (profile.sidePreference) items.push(`<li>Side: ${escapeHtml(profile.sidePreference)}</li>`);
-  if (profile.hidePosition) items.push('<li>Positions hidden</li>');
+  const major: string[] = [];
+  const minor: string[] = [];
+  const positionParts: string[] = [];
 
-  if (!items.length) return '';
+  if (profile.pSize) major.push(`Cock ${profile.pSize}`);
+  if (profile.fSize) major.push(`Foot ${profile.fSize}`);
 
+  if (profile.topPosition) positionParts.push('Top');
+  if (profile.versPosition) positionParts.push('Vers');
+  if (profile.bottomPosition) positionParts.push('Bottom');
+  if (profile.sidePreference) positionParts.push('Side');
+  if (profile.hidePosition) positionParts.push('Hidden');
+  if (positionParts.length) {
+    major.push(`Position ${positionParts.join(' / ')}`);
+  }
+
+  if (profile.age) minor.push(`Age ${profile.age}`);
+  if (profile.height) minor.push(`Height ${profile.height} cm`);
+  if (profile.weight) minor.push(`Weight ${profile.weight} kg`);
+
+  return { major, minor };
+};
+
+const renderHeroStats = (user: UserDTO) => {
+  const { major } = buildChipGroups(user);
+  if (!major.length) return '';
+  const profile = user.profile;
+  const hasOtherPositions =
+    Boolean(profile?.topPosition || profile?.versPosition || profile?.bottomPosition || profile?.hidePosition);
   return `
-    <section class="stats">
-      <h3>Profile</h3>
-      <ul>${items.join('')}</ul>
-    </section>
+    <ul class="hero-stats">
+      ${major
+        .map((chip) => {
+          const isPosition = chip.startsWith('Position');
+          const showSideNote = isPosition && profile?.sidePreference && hasOtherPositions;
+          const sideText = showSideNote ? `<small>Side ${escapeHtml(profile!.sidePreference!)}</small>` : '';
+          return `
+            <li>
+              <strong>${escapeHtml(chip)}</strong>
+              ${sideText}
+            </li>
+          `;
+        })
+        .join('')}
+    </ul>
   `;
+};
+
+const renderPreferenceChips = (user: UserDTO) => {
+  const chips = buildChipGroups(user).minor;
+  if (!chips.length) return '';
+  return `
+    <div class="minor-chips">
+      ${chips.map((chip) => `<span>${escapeHtml(chip)}</span>`).join('')}
+    </div>
+  `;
+};
+
+const renderContentSections = (user: UserDTO) => {
+  return `${renderQrSection(user)}${renderLinks(user)}`;
 };
 
 const buildOgDescription = (user: UserDTO) => {
@@ -149,41 +193,107 @@ export const renderProfilePage = (user: UserDTO) => {
       }
       .card {
         border-radius: 28px;
-        padding: 2.5rem;
+        padding: 2rem;
         background: rgba(255,255,255,0.85);
         box-shadow: 0 30px 70px rgba(15,23,42,0.12);
         border: 1px solid rgba(148,163,184,0.18);
         backdrop-filter: blur(14px);
       }
+      .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        margin-bottom: 1rem;
+      }
       .avatar {
         width: 120px;
         height: 120px;
-        border-radius: 50%;
+        border-radius: 32px;
         object-fit: cover;
         border: 4px solid rgba(79,70,229,0.2);
-        margin-bottom: 1.5rem;
+        box-shadow: 0 20px 40px rgba(79,70,229,0.25);
       }
       h1 {
         margin: 0;
         font-size: 2rem;
         color: #0f172a;
       }
+      .identity {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
       .handle {
         margin: 0.25rem 0 1rem;
         color: #6366f1;
       }
+      .badge {
+        padding: 0.2rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+      }
+      .badge-verified {
+        background: rgba(34,197,94,0.15);
+        color: #16a34a;
+        border: 1px solid rgba(34,197,94,0.3);
+      }
+      .badge-pending {
+        background: rgba(250,204,21,0.15);
+        color: #ca8a04;
+        border: 1px solid rgba(250,204,21,0.3);
+      }
       .bio {
         color: #475569;
-        line-height: 1.6;
-        margin-bottom: 1.5rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+      }
+      .hero-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        list-style: none;
+        padding: 0;
+        margin: 0 0 1rem;
+      }
+      .hero-stats li {
+        padding: 0.6rem 0.9rem;
+        border-radius: 16px;
+        background: rgba(99,102,241,0.08);
+        border: 1px solid rgba(99,102,241,0.2);
+        flex: 1 1 130px;
+      }
+      .hero-stats strong {
+        font-size: 1.25rem;
+        color: #0f172a;
+      }
+      .minor-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-bottom: 1rem;
+      }
+      .minor-chips span {
+        padding: 0.25rem 0.65rem;
+        border-radius: 16px;
+        border: 1px solid rgba(148,163,184,0.3);
+        background: rgba(247,248,252,0.9);
+        font-size: 0.8rem;
+        color: #475569;
+      }
+      .links-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
       }
       .link-card {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 1rem 1.3rem;
-        margin-bottom: 0.75rem;
-        border-radius: 14px;
+        padding: 0.85rem 1rem;
+        border-radius: 13px;
         background: #0f172a;
         color: white;
         text-decoration: none;
@@ -202,8 +312,8 @@ export const renderProfilePage = (user: UserDTO) => {
       .button-row {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
       }
       .button-row a {
         flex: 1;
@@ -217,35 +327,20 @@ export const renderProfilePage = (user: UserDTO) => {
         font-weight: 600;
       }
       .qr-grid {
-        margin-top: 1.5rem;
+        margin-top: 1rem;
         display: grid;
-        grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fit,minmax(150px,1fr));
+        gap: 0.75rem;
       }
       .qr-grid img {
         width: 100%;
         border-radius: 14px;
         border: 1px solid rgba(148,163,184,0.3);
       }
-      .stats {
-        margin: 1.5rem 0;
-        padding: 1rem;
-        border-radius: 14px;
-        background: rgba(99,102,241,0.08);
-      }
-      .stats ul {
-        list-style: none;
-        padding: 0;
-        margin: 0.5rem 0 0;
-        color: #475569;
-      }
-      .stats li + li {
-        margin-top: 0.35rem;
-      }
       .empty {
         text-align: center;
         color: #94a3b8;
-        padding: 1rem 0;
+        padding: 0.75rem 0;
       }
       footer {
         margin-top: 2.5rem;
@@ -254,7 +349,14 @@ export const renderProfilePage = (user: UserDTO) => {
       }
       @media (max-width: 640px) {
         .card {
-          padding: 1.8rem;
+          padding: 1.6rem;
+        }
+        .profile-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .hero-stats {
+          flex-direction: column;
         }
       }
     </style>
@@ -262,18 +364,33 @@ export const renderProfilePage = (user: UserDTO) => {
   <body>
     <div class="page">
       <article class="card">
-        ${
-          user.avatarUrl
-            ? `<img class="avatar" src="${user.avatarUrl}" alt="${escapeHtml(user.displayName)}" />`
-            : ''
-        }
-        <h1>${escapeHtml(user.displayName)}</h1>
-        <p class="handle">@${escapeHtml(user.handle)}</p>
+        <div class="profile-header">
+          ${
+            user.avatarUrl
+              ? `<img class="avatar" src="${user.avatarUrl}" alt="${escapeHtml(user.displayName)}" />`
+              : ''
+          }
+          <div>
+            <div class="identity">
+              <h1>${escapeHtml(user.displayName)}</h1>
+              ${
+                user.profile?.verificationStatus === 'approved'
+                  ? '<span class="badge badge-verified">Verified</span>'
+                  : user.profile?.verificationStatus
+                    ? `<span class="badge badge-pending">${escapeHtml(
+                        user.profile.verificationStatus
+                      )}</span>`
+                    : ''
+              }
+            </div>
+            <p class="handle">@${escapeHtml(user.handle)}</p>
+            ${renderHeroStats(user)}
+            ${renderPreferenceChips(user)}
+          </div>
+        </div>
         ${user.bio ? `<p class="bio">${escapeHtml(user.bio)}</p>` : ''}
         ${renderButtons(user)}
-        ${renderStats(user)}
-        ${renderLinks(user)}
-        ${renderQrSection(user)}
+        ${renderContentSections(user)}
       </article>
       <footer>
         Powered by GMGN Card

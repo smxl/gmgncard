@@ -164,6 +164,8 @@ export interface VerificationRequestPayload {
 export interface UpdateUserProfilePayload extends VerificationRequestPayload {
   verificationStatus?: VerificationStatus;
   qrAccess?: boolean;
+  displayName?: string;
+  password?: string;
 }
 
 export interface UpsertLinkPayload {

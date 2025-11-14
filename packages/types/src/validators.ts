@@ -159,7 +159,17 @@ export const verificationRequestSchema = z.object({
 
 export const updateUserProfileSchema = verificationRequestSchema.extend({
   verificationStatus: z.enum(verificationStatuses).optional(),
-  qrAccess: z.boolean().optional()
+  qrAccess: z.boolean().optional(),
+  displayName: z
+    .string()
+    .min(1)
+    .max(64)
+    .optional(),
+  password: z
+    .string()
+    .min(6)
+    .max(64)
+    .optional()
 });
 
 export const upsertLinkSchema = z.object({

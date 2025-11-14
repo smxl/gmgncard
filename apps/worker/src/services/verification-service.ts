@@ -63,7 +63,10 @@ export class VerificationService {
     await this.userRepo.updateProfile(user.id, {
       ...data.profile,
       verificationStatus: 'pending',
-      qrAccess: false
+      qrAccess: false,
+      sidePreference: data.profile.sidePreference
+        ? (data.profile.sidePreference as 'Left' | 'Right')
+        : undefined
     });
 
     if (data.links?.length) {

@@ -1,23 +1,28 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import type { VerificationRequestPayload } from '@gmgncard/types';
+import type { UpdateUserProfilePayload, VerificationRequestPayload } from '@gmgncard/types';
 import { Card } from './Card';
 import { useAuth } from '../stores/auth';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { adminApi } from '../lib/api';
 
-const emptyState: VerificationRequestPayload = {
+const POSITION_CHOICES = ['top', 'vers', 'bottom', 'side', 'hidden'] as const;
+type PositionChoice = (typeof POSITION_CHOICES)[number] | '';
+
+const emptyState: UpdateUserProfilePayload = {
   pSize: '',
   fSize: '',
   topPosition: '',
   bottomPosition: '',
   versPosition: '',
-  sidePreference: '',
+  sidePreference: undefined,
   hidePosition: false,
   notes: '',
   age: undefined,
   height: undefined,
-  weight: undefined
+  weight: undefined,
+  displayName: '',
+  password: ''
 };
 
 export const SelfProfilePanel = () => {
@@ -25,14 +30,15 @@ export const SelfProfilePanel = () => {
   const handle = user?.handle;
   const queryClient = useQueryClient();
   const profileQuery = useUserProfile(handle);
-  const [form, setForm] = useState<VerificationRequestPayload>(emptyState);
+  const [form, setForm] = useState<UpdateUserProfilePayload>(emptyState);
   const [success, setSuccess] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [positionChoice, setPositionChoice] = useState<PositionChoice>('none');
 
   useEffect(() => {
     if (profileQuery.data?.data?.profile) {
       const profile = profileQuery.data.data.profile;
-      setForm({
+      const nextForm: UpdateUserProfilePayload = {
         pSize: profile.pSize ?? '',
         fSize: profile.fSize ?? '',
         topPosition: profile.topPosition ?? '',
@@ -44,17 +50,65 @@ export const SelfProfilePanel = () => {
         age: profile.age,
         height: profile.height,
         weight: profile.weight,
-        features: profile.features ?? undefined
-      });
+        features: profile.features ?? undefined,
+        displayName: user?.displayName ?? '',
+        password: ''
+      };
+      setForm(nextForm);
+      const detectPosition = (): PositionChoice => {
+        if (profile.topPosition) return 'top';
+        if (profile.versPosition) return 'vers';
+        if (profile.bottomPosition) return 'bottom';
+        if (profile.sidePreference) return 'side';
+        if (profile.hidePosition) return 'hidden';
+        return 'none';
+      };
+      setPositionChoice(detectPosition());
     }
-  }, [profileQuery.data]);
+  }, [profileQuery.data, user]);
+
+  useEffect(() => {
+    if (user?.displayName) {
+      setForm((prev) => ({ ...prev, displayName: user.displayName }));
+    }
+  }, [user]);
+
+  const applyPositionChoice = (choice: PositionChoice) => {
+    setPositionChoice(choice);
+    setForm((prev) => ({
+      ...prev,
+      topPosition: choice === 'top' ? 'Top' : undefined,
+      versPosition: choice === 'vers' ? 'Vers' : undefined,
+      bottomPosition: choice === 'bottom' ? 'Bottom' : undefined,
+      sidePreference: choice === 'side' ? 'Side' : undefined,
+      hidePosition: choice === 'hidden'
+    }));
+  };
+
+  const buildUpdatePayload = (): UpdateUserProfilePayload => {
+    const { password, displayName, ...rest } = form;
+    const payload: UpdateUserProfilePayload = { ...rest };
+    if (displayName?.trim()) {
+      payload.displayName = displayName.trim();
+    }
+    if (password && password.length >= 6) {
+      payload.password = password;
+    }
+    return payload;
+  };
+
+  const buildVerificationPayload = (): VerificationRequestPayload => {
+    const { password: _password, displayName: _displayName, ...rest } = form;
+    return rest as VerificationRequestPayload;
+  };
 
   const updateMutation = useMutation({
-    mutationFn: (payload: VerificationRequestPayload) => adminApi.updateProfile(handle!, payload),
+    mutationFn: (payload: UpdateUserProfilePayload) => adminApi.updateProfile(handle!, payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['user-profile', handle] });
       setSuccess('资料已保存');
       setFormError(null);
+      setForm((prev) => ({ ...prev, password: '' }));
     }
   });
 
@@ -106,10 +160,17 @@ export const SelfProfilePanel = () => {
         }
         setFormError(null);
         setSuccess(null);
-        updateMutation.mutate(form);
+        updateMutation.mutate(buildUpdatePayload());
       }}>
         <label>
-          Top Size
+          显示名称
+          <input
+            value={form.displayName ?? ''}
+            onChange={(e) => setForm((prev) => ({ ...prev, displayName: e.target.value }))}
+          />
+        </label>
+        <label>
+          Cock Size
           <input
             value={form.pSize ?? ''}
             placeholder="cm"
@@ -117,11 +178,20 @@ export const SelfProfilePanel = () => {
           />
         </label>
         <label>
-          Bottom Size
+          Foot Size
           <input
             value={form.fSize ?? ''}
             placeholder="EU"
             onChange={(e) => setForm((prev) => ({ ...prev, fSize: e.target.value }))}
+          />
+        </label>
+        <label>
+          新密码
+          <input
+            type="password"
+            value={form.password ?? ''}
+            placeholder="至少 6 位"
+            onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
           />
         </label>
         <div className="grid grid-cols-2 gap-4">
@@ -157,28 +227,15 @@ export const SelfProfilePanel = () => {
           </label>
         </div>
         <label>
-          Top Position
-          <input value={form.topPosition ?? ''} onChange={(e) => setForm((prev) => ({ ...prev, topPosition: e.target.value }))} />
-        </label>
-        <label>
-          Bottom Position
-          <input value={form.bottomPosition ?? ''} onChange={(e) => setForm((prev) => ({ ...prev, bottomPosition: e.target.value }))} />
-        </label>
-        <label>
-          Vers Position
-          <input value={form.versPosition ?? ''} onChange={(e) => setForm((prev) => ({ ...prev, versPosition: e.target.value }))} />
-        </label>
-        <label>
-          Side Preference
-          <input value={form.sidePreference ?? ''} onChange={(e) => setForm((prev) => ({ ...prev, sidePreference: e.target.value }))} />
-        </label>
-        <label className="checkbox">
-          <input
-            type="checkbox"
-            checked={form.hidePosition ?? false}
-            onChange={(e) => setForm((prev) => ({ ...prev, hidePosition: e.target.checked }))}
-          />
-          不公开 Position
+          Position
+          <select value={positionChoice} onChange={(e) => applyPositionChoice(e.target.value as PositionChoice)}>
+            <option value="">未设置</option>
+            {POSITION_CHOICES.map((choice) => (
+              <option key={choice} value={choice}>
+                {choice}
+              </option>
+            ))}
+          </select>
         </label>
         <label>
           备注 / Features
@@ -201,7 +258,7 @@ export const SelfProfilePanel = () => {
           <button
             type="button"
             className="ghost-btn"
-            onClick={() => requestVerificationMutation.mutate(form)}
+            onClick={() => requestVerificationMutation.mutate(buildVerificationPayload())}
             disabled={!token || requestVerificationMutation.isPending}
           >
             {requestVerificationMutation.isPending ? '申请中…' : '申请验证'}
