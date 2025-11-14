@@ -89,6 +89,7 @@ export class UserRepository {
       .select({ user: users, profile: userProfiles })
       .from(users)
       .leftJoin(userProfiles, eq(userProfiles.userId, users.id))
+      .where(eq(userProfiles.verificationStatus, 'approved'))
       .orderBy(desc(users.isFeatured), desc(users.updatedAt))
       .limit(limit);
 
