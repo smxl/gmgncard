@@ -18,6 +18,7 @@ export const SelfLinksPanel = () => {
     order: 0,
     isHidden: false
   });
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   const invalidate = async () => {
     await queryClient.invalidateQueries({ queryKey: ['links', handle] });
@@ -36,6 +37,7 @@ export const SelfLinksPanel = () => {
     mutationFn: (payload: UpsertLinkPayload) => adminApi.createLink(handle, payload),
     onSuccess: async () => {
       setForm({ title: '', url: '', order: 0, isHidden: false });
+      setFeedback('已创建链接');
       await invalidate();
     }
   });
@@ -43,12 +45,18 @@ export const SelfLinksPanel = () => {
   const toggleMutation = useMutation({
     mutationFn: ({ link, nextHidden }: { link: LinkDTO; nextHidden: boolean }) =>
       adminApi.updateLink(handle, link.id, { ...linkToPayload(link), isHidden: nextHidden }),
-    onSuccess: invalidate
+    onSuccess: async () => {
+      setFeedback('已更新显示状态');
+      await invalidate();
+    }
   });
 
   const deleteMutation = useMutation({
     mutationFn: (linkId: number) => adminApi.deleteLink(handle, linkId),
-    onSuccess: invalidate
+    onSuccess: async () => {
+      setFeedback('已删除链接');
+      await invalidate();
+    }
   });
 
   if (bootstrapping) {
@@ -153,6 +161,7 @@ export const SelfLinksPanel = () => {
         <button type="submit" disabled={!token || createMutation.isPending}>
           {createMutation.isPending ? '添加中…' : '添加链接'}
         </button>
+        {feedback && <p className="success">{feedback}</p>}
       </form>
     </Card>
   );

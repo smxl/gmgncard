@@ -13,12 +13,15 @@ export const AuthPanel = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (!form.handle || !form.password) {
+      return;
+    }
     if (mode === 'login') {
-      await login({ handle: form.handle, password: form.password });
+      await login({ handle: form.handle.trim(), password: form.password });
     } else {
       await register({
-        handle: form.handle,
-        displayName: form.displayName || form.handle,
+        handle: form.handle.trim(),
+        displayName: form.displayName.trim() || form.handle.trim(),
         password: form.password
       });
     }
@@ -60,14 +63,16 @@ export const AuthPanel = () => {
         </div>
       ) : (
         <form className="auth-form" onSubmit={handleSubmit}>
-          <label>
-            Handle
-            <input
-              value={form.handle}
-              onChange={(event) => setForm((prev) => ({ ...prev, handle: event.target.value }))}
-              required
+         <label>
+           Handle
+           <input
+             value={form.handle}
+             onChange={(event) => setForm((prev) => ({ ...prev, handle: event.target.value }))}
+             required
+              minLength={3}
+              maxLength={32}
             />
-          </label>
+         </label>
           {mode === 'register' && (
             <label>
               显示名称

@@ -9,6 +9,7 @@ export const PendingProfilesPanel = () => {
   const { token } = useAuth();
   const [selected, setSelected] = useState<UserDTO | null>(null);
   const [pendingUsers, setPendingUsers] = useState<UserDTO[]>([]);
+  const [rejectReason, setRejectReason] = useState('');
   const queryClient = useQueryClient();
 
   const loadPending = async () => {
@@ -44,9 +45,10 @@ export const PendingProfilesPanel = () => {
   const handleReject = async (user: UserDTO, notes?: string) => {
     const payload: UpdateUserProfilePayload = {
       verificationStatus: 'rejected',
-      notes
+      notes: notes || '资料不符合规范'
     };
     await mutation.mutateAsync({ handle: user.handle, payload });
+    setRejectReason('');
   };
 
   if (!token) {
@@ -81,6 +83,8 @@ export const PendingProfilesPanel = () => {
               user={selected}
               onApprove={handleApprove}
               onReject={handleReject}
+              rejectReason={rejectReason}
+              setRejectReason={setRejectReason}
               loading={mutation.isPending}
             />
           ) : (
@@ -96,11 +100,15 @@ const ProfileReviewForm = ({
   user,
   onApprove,
   onReject,
+  rejectReason,
+  setRejectReason,
   loading
 }: {
   user: UserDTO;
   onApprove: (user: UserDTO, payload: Partial<UpdateUserProfilePayload>) => Promise<void>;
   onReject: (user: UserDTO, notes?: string) => Promise<void>;
+  rejectReason: string;
+  setRejectReason: (value: string) => void;
   loading: boolean;
 }) => {
   const profile = user.profile;
@@ -147,7 +155,7 @@ const ProfileReviewForm = ({
       </label>
       <div className="form-actions">
         <button onClick={() => onApprove(user, { qrAccess })} disabled={loading}>
-          {loading ? '处理中…' : '通过' }
+          {loading ? '处理中…' : '通过'}
         </button>
         <button
           type="button"

@@ -26,6 +26,8 @@ export const SelfProfilePanel = () => {
   const queryClient = useQueryClient();
   const profileQuery = useUserProfile(handle);
   const [form, setForm] = useState<VerificationRequestPayload>(emptyState);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     if (profileQuery.data?.data?.profile) {
@@ -51,6 +53,8 @@ export const SelfProfilePanel = () => {
     mutationFn: (payload: VerificationRequestPayload) => adminApi.submitProfile(handle!, payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['user-profile', handle] });
+      setSuccess('已提交审核，管理员通过后会自动展示。');
+      setFormError(null);
     }
   });
 
@@ -83,15 +87,33 @@ export const SelfProfilePanel = () => {
       )}
       <form className="settings-form" onSubmit={(event) => {
         event.preventDefault();
+        if (form.pSize && Number.isNaN(Number(form.pSize))) {
+          setFormError('Penis 长度需为数字');
+          return;
+        }
+        if (form.fSize && Number.isNaN(Number(form.fSize))) {
+          setFormError('Foot 尺码需为数字');
+          return;
+        }
+        setFormError(null);
+        setSuccess(null);
         mutation.mutate(form);
       }}>
         <label>
           Top Size
-          <input value={form.pSize ?? ''} onChange={(e) => setForm((prev) => ({ ...prev, pSize: e.target.value }))} />
+          <input
+            value={form.pSize ?? ''}
+            placeholder="cm"
+            onChange={(e) => setForm((prev) => ({ ...prev, pSize: e.target.value }))}
+          />
         </label>
         <label>
           Bottom Size
-          <input value={form.fSize ?? ''} onChange={(e) => setForm((prev) => ({ ...prev, fSize: e.target.value }))} />
+          <input
+            value={form.fSize ?? ''}
+            placeholder="EU"
+            onChange={(e) => setForm((prev) => ({ ...prev, fSize: e.target.value }))}
+          />
         </label>
         <div className="grid grid-cols-2 gap-4">
           <label>
@@ -157,6 +179,8 @@ export const SelfProfilePanel = () => {
             rows={3}
           />
         </label>
+        {formError && <p className="error">{formError}</p>}
+        {success && <p className="success">{success}</p>}
         {mutation.error && <p className="error">{(mutation.error as Error).message}</p>}
         <button type="submit" disabled={!token || mutation.isPending}>
           {mutation.isPending ? '提交中…' : '提交审核'}
