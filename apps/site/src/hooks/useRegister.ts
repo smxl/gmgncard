@@ -1,6 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-
-const API_BASE = (import.meta.env.VITE_WORKER_BASE ?? '').replace(/\/$/, '') || window.location.origin;
+import { buildApiUrl } from '../lib/api';
 
 interface RegisterFormPayload {
   brand: string;
@@ -11,7 +10,7 @@ interface RegisterFormPayload {
 export const useRegister = () =>
   useMutation({
     mutationFn: async (payload: RegisterFormPayload) => {
-      const response = await fetch(`${API_BASE}/api/auth/register`, {
+      const response = await fetch(buildApiUrl('/api/auth/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

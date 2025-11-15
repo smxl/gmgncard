@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-
-const API_BASE = (import.meta.env.VITE_WORKER_BASE ?? '').replace(/\/$/, '') || window.location.origin;
+import { buildApiUrl } from '../lib/api';
 
 export interface PlazaUser {
   id: number;
@@ -16,7 +15,7 @@ export const usePlaza = (limit = 12) =>
   useQuery({
     queryKey: ['plaza', limit],
     queryFn: async () => {
-      const resp = await fetch(`${API_BASE}/api/plaza?limit=${limit}`);
+      const resp = await fetch(buildApiUrl(`/api/plaza?limit=${limit}`));
       if (!resp.ok) {
         throw new Error('加载广场失败');
       }

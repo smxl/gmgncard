@@ -1,7 +1,7 @@
 const rawBase = (import.meta.env.VITE_WORKER_BASE as string | undefined) ?? '';
 const API_BASE = rawBase.trim();
 
-const buildUrl = (path: string) => {
+export const buildApiUrl = (path: string) => {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   if (!API_BASE) {
     return normalizedPath;
@@ -41,7 +41,7 @@ export interface VerificationRequestBody {
 }
 
 export const submitVerificationRequest = async (payload: VerificationRequestBody) => {
-  const response = await fetch(buildUrl('/api/verification'), {
+  const response = await fetch(buildApiUrl('/api/verification'), {
     method: 'POST',
     headers: {
       'content-type': 'application/json'
