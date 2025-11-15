@@ -25,7 +25,8 @@ const emptyState: UpdateUserProfilePayload = {
   height: undefined,
   weight: undefined,
   displayName: '',
-  password: ''
+  password: '',
+  bio: ''
 };
 
 export const SelfProfilePanel = () => {
@@ -41,7 +42,8 @@ export const SelfProfilePanel = () => {
 
   useEffect(() => {
     if (profileQuery.data?.data?.profile) {
-      const profile = profileQuery.data.data.profile;
+      const profileData = profileQuery.data.data;
+      const profile = profileData.profile;
       const nextForm: UpdateUserProfilePayload = {
         pSize: profile.pSize ?? '',
         fSize: profile.fSize ?? '',
@@ -55,7 +57,8 @@ export const SelfProfilePanel = () => {
         height: profile.height,
         weight: profile.weight,
         features: profile.features ?? undefined,
-        displayName: user?.displayName ?? '',
+        displayName: profileData.displayName ?? user?.displayName ?? '',
+        bio: profileData.bio ?? '',
         password: ''
       };
       setForm(nextForm);
@@ -137,25 +140,28 @@ export const SelfProfilePanel = () => {
           {profile.qrAccess ? ' · QR 已解锁' : ''}
         </div>
       )}
-      <form className="settings-form" onSubmit={(event) => {
-        event.preventDefault();
-        if (form.pSize && Number.isNaN(Number(form.pSize))) {
-          setFormError('Penis 长度需为数字');
-          return;
-        }
-        if (form.fSize && Number.isNaN(Number(form.fSize))) {
-          setFormError('Foot 尺码需为数字');
-          return;
-        }
-       setFormError(null);
-       setSuccess(null);
-        const payload = buildUpdatePayload();
-        if (avatarFile) {
-          await adminApi.uploadAvatar(handle!, avatarFile);
-          setAvatarFile(null);
-        }
-        updateMutation.mutate(payload);
-      }}>
+      <form
+        className="settings-form"
+        onSubmit={async (event) => {
+          event.preventDefault();
+          if (form.pSize && Number.isNaN(Number(form.pSize))) {
+            setFormError('Penis 长度需为数字');
+            return;
+          }
+          if (form.fSize && Number.isNaN(Number(form.fSize))) {
+            setFormError('Foot 尺码需为数字');
+            return;
+          }
+          setFormError(null);
+          setSuccess(null);
+          const payload = buildUpdatePayload();
+          if (avatarFile) {
+            await adminApi.uploadAvatar(handle!, avatarFile);
+            setAvatarFile(null);
+          }
+          updateMutation.mutate(payload);
+        }}
+      >
         <label>
           显示名称
           <input
@@ -194,6 +200,14 @@ export const SelfProfilePanel = () => {
             value={form.password ?? ''}
             placeholder="至少 6 位"
             onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+          />
+        </label>
+        <label>
+          个人简介
+          <textarea
+            rows={3}
+            value={form.bio ?? ''}
+            onChange={(e) => setForm((prev) => ({ ...prev, bio: e.target.value }))}
           />
         </label>
         <div className="grid grid-cols-2 gap-4">

@@ -145,6 +145,7 @@ export const verificationRequestSchema = z.object({
   age: z.number().int().nonnegative().optional(),
   height: z.number().int().nonnegative().optional(),
   weight: z.number().int().nonnegative().optional(),
+  bio: z.string().max(280).optional(),
   wechatQrUrl: z.string().url().optional(),
   groupQrUrl: z.string().url().optional(),
   extra: metadataSchema.optional(),

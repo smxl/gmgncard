@@ -393,7 +393,7 @@ export const renderProfilePage = (user: UserDTO) => {
         ${renderContentSections(user)}
       </article>
       <footer>
-        Powered by GMGN Card
+        GMGN Card, a <a href="https://gay.pet/?utm_source=gmgncard">Gay.Pet</a> project. <3
       </footer>
     </div>
     <script>

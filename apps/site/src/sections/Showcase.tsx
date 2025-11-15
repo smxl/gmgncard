@@ -5,9 +5,7 @@ const steps = [
 ];
 
 const mockLinks = [
-  { title: 'GMGN 官网', url: 'gmgncard.com', hidden: false },
-  { title: '客服微信', url: 'wechat://gmgn', hidden: false },
-  { title: '内部链接', url: 'private.gmgn', hidden: true }
+  { title: '官网', url: 'https://gay.pet', hidden: false }
 ];
 
 export const Showcase = () => (
@@ -31,8 +29,8 @@ export const Showcase = () => (
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-full bg-indigo-500/20" />
           <div>
-            <p className="font-semibold">Alice Zhang</p>
-            <p className="text-slate-400 text-sm">@alice</p>
+            <p className="font-semibold">gay</p>
+            <p className="text-slate-400 text-sm">@gay</p>
           </div>
         </div>
         <div className="space-y-3">

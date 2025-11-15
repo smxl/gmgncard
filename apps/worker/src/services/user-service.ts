@@ -67,10 +67,14 @@ export class UserService {
       throw new HttpError(404, `User ${handle} not found`);
     }
 
-    const { displayName, password, ...profilePayload } = parsed;
+    const { displayName, password, bio, ...profilePayload } = parsed;
 
     if (displayName) {
       await this.repo.updateUserBasics(user.id, { displayName: displayName.trim() });
+    }
+
+    if (bio !== undefined) {
+      await this.repo.updateUserBasics(user.id, { bio });
     }
 
     if (password) {

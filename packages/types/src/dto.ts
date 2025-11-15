@@ -149,6 +149,7 @@ export interface VerificationRequestPayload {
   age?: number;
   height?: number;
   weight?: number;
+  bio?: string;
   wechatQrUrl?: string;
   groupQrUrl?: string;
   extra?: Record<string, unknown>;
@@ -166,6 +167,7 @@ export interface UpdateUserProfilePayload extends VerificationRequestPayload {
   qrAccess?: boolean;
   displayName?: string;
   password?: string;
+  bio?: string;
 }
 
 export interface UpsertLinkPayload {

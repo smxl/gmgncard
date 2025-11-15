@@ -13,7 +13,7 @@ export const Plaza = () => {
             <h2 className="text-3xl font-semibold mt-2">发现新朋友</h2>
           </div>
           <a href="/admin" className="text-sm text-indigo-300 underline">
-            登录管理我的页面 →
+            登入我的页面 →
           </a>
         </div>
         {plazaQuery.isLoading && <p className="text-slate-400">加载中…</p>}

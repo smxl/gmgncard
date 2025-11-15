@@ -1,11 +1,11 @@
 const features = [
   {
-    title: 'Pride',
-    description: '🌈 专属社区支持'
+    title: '🌈 Pride',
+    description: 'Gay Pet 🏳️‍🌈 专属社区支持'
   },
   {
     title: '二维码',
-    description: '支持微信/群二维码上传'
+    description: '支持微信/群二维码上传*'
   },
   {
     title: '更多',
