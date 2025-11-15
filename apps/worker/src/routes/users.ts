@@ -1,6 +1,7 @@
 import type { Hono } from 'hono';
 import type { AppBindings } from '../types';
 import { UserService } from '../services/user-service';
+import { AvatarService } from '../services/avatar-service';
 import { UserRepository } from '../repos/user-repo';
 import { withRequestMeta } from '../utils/responses';
 import { requireAuth } from '../middleware/auth';
@@ -95,4 +96,18 @@ export const registerUserRoutes = (router: Hono<AppBindings>) => {
     const updated = await service.updateFeatured(c.req.param('handle'), body);
     return withRequestMeta(c, updated);
   });
+  router.post(
+    '/users/:handle/avatar',
+    requireAuth({ allowSelf: { param: 'handle', require: true } }),
+    async (c) => {
+      const form = await c.req.parseBody();
+      const file = form['avatar'];
+      if (!(file instanceof File)) {
+        return c.json({ error: 'Missing avatar file' }, 400);
+      }
+      const service = AvatarService.fromEnv(c.env);
+      const result = await service.upload(c.req.param('handle'), file);
+      return withRequestMeta(c, result);
+    }
+  );
 };

@@ -12,6 +12,7 @@
     "test": "pnpm -r test --if-present",
     "smoke": "node scripts/smoke.mjs",
     "migrate": "node scripts/run-migrations.mjs",
-    "migrate:local": "node scripts/run-migrations.mjs --local"
+    "migrate:local": "node scripts/run-migrations.mjs --local",
+    "deploy:worker:prod": "bash scripts/deploy-prod.sh"
   }
 }

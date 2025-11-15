@@ -1,0 +1,35 @@
+name = "gmgncard-worker"
+main = "../apps/worker/src/index.ts"
+compatibility_date = "2024-06-20"
+
+[vars]
+ENV = "production"
+JWT_SECRET = "${JWT_SECRET}"
+TURNSTILE_SECRET = "${TURNSTILE_SECRET}"
+TURNSTILE_SITE_KEY = "${TURNSTILE_SITE_KEY}"
+CF_ACCESS_AUD = "${CF_ACCESS_AUD}"
+CF_ACCESS_TEAM = "${CF_ACCESS_TEAM}"
+CORS_ORIGINS = "${CORS_ORIGINS}"
+
+[[d1_databases]]
+binding = "GMGNCARD_DB"
+database_name = "gmgncard-db"
+database_id = "${D1_DATABASE_ID}"
+
+[[kv_namespaces]]
+binding = "GMGNCARD_KV"
+id = "${KV_NAMESPACE_ID}"
+
+[[r2_buckets]]
+binding = "GMGNCARD_R2"
+bucket_name = "${R2_BUCKET_NAME}"
+
+[[queues.producers]]
+queue = "gmgncard-jobs"
+binding = "GMGNCARD_QUEUE"
+
+[[queues.consumers]]
+queue = "gmgncard-jobs"
+
+[triggers]
+crons = ["0 6 * * *"]

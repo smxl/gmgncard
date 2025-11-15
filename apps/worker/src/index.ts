@@ -17,6 +17,7 @@ import { registerOgRoutes } from './routes/og';
 import { registerStaticRoutes } from './routes/static';
 import { registerVerificationRoutes } from './routes/verification';
 import { registerMetricsRoutes } from './routes/metrics';
+import { registerAvatarRoutes } from './routes/avatar';
 import { withRequestMeta } from './utils/responses';
 import { HttpError, isHttpError } from './utils/errors';
 import { JobProcessor } from './jobs/processor';
@@ -36,6 +37,7 @@ registerAuthRoutes(api);
 registerLinkRoutes(api);
 registerPlazaRoutes(api);
 registerVerificationRoutes(api);
+registerAvatarRoutes(api);
 registerOgRoutes(app);
 
 app.route('/api', api);

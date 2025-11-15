@@ -30,20 +30,27 @@ pnpm migrate:local  # 在本地环境执行（带 --local）
 
 ## 4. Secrets 与环境变量
 
-- 本地开发：在根目录或 `apps/worker/` 下放置 `.dev.vars`，包含 `JWT_SECRET`、`TURNSTILE_SECRET`、`TURNSTILE_SITE_KEY`、`CF_ACCESS_*`、`CORS_ORIGINS` 等，多个域名用逗号分隔。
-- 生产：通过 `wrangler secret put JWT_SECRET` 等命令注入 Cloudflare Secrets，并确保 `infra/wrangler.toml` 的 `[vars]` 中声明了这些键以便 wrangler 读取。
+| 键名 | 用途 | 获取方式 / 备注 |
+| --- | --- | --- |
+| `JWT_SECRET` | Worker 签发/验证 JWT | 生成 32+ 字节随机字符串（`openssl rand -hex 32`），本地放 `.dev.vars`，生产用 `wrangler secret put JWT_SECRET` |
+| `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET` | 表单验证码（可选） | Cloudflare Dashboard → Turnstile 创建站点获得；若暂未启用，设为 `disabled` |
+| `CF_ACCESS_AUD` / `CF_ACCESS_TEAM` | Cloudflare Access 校验（可选） | Access 应用详情页复制 AUD 与 Team Domain；若未启用 Access，可置空 |
+| `CORS_ORIGINS` | 允许访问 Worker API 的来源 | 用逗号分隔的域名，例 `https://admin.example.com,https://app.example.com` |
+| `D1_DATABASE_ID` | D1 生产库 ID | Cloudflare Dashboard → D1 复制 `database_id`，写入 `wrangler.prod.toml` |
+| `KV_NAMESPACE_ID` | KV Namespace ID | Dashboard → KV 复制 ID，写入 `wrangler.prod.toml` |
+| `R2_BUCKET_NAME` | R2 bucket 名称 | Dashboard → R2 复制 bucket 名，写入 `wrangler.prod.toml` |
+
+> 可在 `infra/wrangler.prod.toml` 中使用 `${ENV_VAR}` 占位，部署前通过 shell 或 CI 注入环境变量。
 
 ## 5. 发布 Worker
 
-## 4. 发布 Worker
-
 ```bash
-pnpm --filter @gmgncard/worker deploy
-# 或
-wrangler deploy --config infra/wrangler.toml
+pnpm deploy:worker:prod  # 调用 scripts/deploy-prod.sh
+# 或手动：
+# pnpm build && wrangler deploy --config infra/wrangler.prod.toml
 ```
 
-Wrangler 会使用 `main = "../apps/worker/src/index.ts"` 生成最新 bundle，并绑定 D1/KV/R2。
+`scripts/deploy-prod.sh` 会先跑 `pnpm build` 再加载 `infra/wrangler.prod.toml` 部署。确保执行前已在终端导出上表中的环境变量。
 
 ## 6. 部署 Admin 与 Site
 

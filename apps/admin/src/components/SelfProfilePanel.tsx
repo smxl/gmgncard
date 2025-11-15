@@ -1,13 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import type { UpdateUserProfilePayload, VerificationRequestPayload } from '@gmgncard/types';
+import {
+  POSITION_CHOICES,
+  type PositionChoice,
+  applyPositionChoice,
+  detectPositionChoice
+} from '@gmgncard/types';
 import { Card } from './Card';
 import { useAuth } from '../stores/auth';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { adminApi } from '../lib/api';
-
-const POSITION_CHOICES = ['top', 'vers', 'bottom', 'side', 'hidden'] as const;
-type PositionChoice = (typeof POSITION_CHOICES)[number] | '';
 
 const emptyState: UpdateUserProfilePayload = {
   pSize: '',
@@ -34,6 +37,7 @@ export const SelfProfilePanel = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [positionChoice, setPositionChoice] = useState<PositionChoice>('none');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (profileQuery.data?.data?.profile) {
@@ -41,10 +45,10 @@ export const SelfProfilePanel = () => {
       const nextForm: UpdateUserProfilePayload = {
         pSize: profile.pSize ?? '',
         fSize: profile.fSize ?? '',
-        topPosition: profile.topPosition ?? '',
-        bottomPosition: profile.bottomPosition ?? '',
-        versPosition: profile.versPosition ?? '',
-        sidePreference: profile.sidePreference ?? '',
+        topPosition: profile.topPosition ?? undefined,
+        bottomPosition: profile.bottomPosition ?? undefined,
+        versPosition: profile.versPosition ?? undefined,
+        sidePreference: profile.sidePreference ?? undefined,
         hidePosition: profile.hidePosition ?? false,
         notes: profile.notes ?? '',
         age: profile.age,
@@ -55,15 +59,7 @@ export const SelfProfilePanel = () => {
         password: ''
       };
       setForm(nextForm);
-      const detectPosition = (): PositionChoice => {
-        if (profile.topPosition) return 'top';
-        if (profile.versPosition) return 'vers';
-        if (profile.bottomPosition) return 'bottom';
-        if (profile.sidePreference) return 'side';
-        if (profile.hidePosition) return 'hidden';
-        return 'none';
-      };
-      setPositionChoice(detectPosition());
+      setPositionChoice(detectPositionChoice(profile));
     }
   }, [profileQuery.data, user]);
 
@@ -73,16 +69,9 @@ export const SelfProfilePanel = () => {
     }
   }, [user]);
 
-  const applyPositionChoice = (choice: PositionChoice) => {
+  const handlePositionChoice = (choice: PositionChoice) => {
     setPositionChoice(choice);
-    setForm((prev) => ({
-      ...prev,
-      topPosition: choice === 'top' ? 'Top' : undefined,
-      versPosition: choice === 'vers' ? 'Vers' : undefined,
-      bottomPosition: choice === 'bottom' ? 'Bottom' : undefined,
-      sidePreference: choice === 'side' ? 'Side' : undefined,
-      hidePosition: choice === 'hidden'
-    }));
+    setForm((prev) => applyPositionChoice(choice, prev));
   };
 
   const buildUpdatePayload = (): UpdateUserProfilePayload => {
@@ -158,15 +147,28 @@ export const SelfProfilePanel = () => {
           setFormError('Foot 尺码需为数字');
           return;
         }
-        setFormError(null);
-        setSuccess(null);
-        updateMutation.mutate(buildUpdatePayload());
+       setFormError(null);
+       setSuccess(null);
+        const payload = buildUpdatePayload();
+        if (avatarFile) {
+          await adminApi.uploadAvatar(handle!, avatarFile);
+          setAvatarFile(null);
+        }
+        updateMutation.mutate(payload);
       }}>
         <label>
           显示名称
           <input
             value={form.displayName ?? ''}
             onChange={(e) => setForm((prev) => ({ ...prev, displayName: e.target.value }))}
+          />
+        </label>
+        <label>
+          头像
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={(event) => setAvatarFile(event.target.files?.[0] ?? null)}
           />
         </label>
         <label>
@@ -228,11 +230,10 @@ export const SelfProfilePanel = () => {
         </div>
         <label>
           Position
-          <select value={positionChoice} onChange={(e) => applyPositionChoice(e.target.value as PositionChoice)}>
-            <option value="">未设置</option>
+          <select value={positionChoice} onChange={(e) => handlePositionChoice(e.target.value as PositionChoice)}>
             {POSITION_CHOICES.map((choice) => (
               <option key={choice} value={choice}>
-                {choice}
+                {choice === 'none' ? '未设置' : choice}
               </option>
             ))}
           </select>

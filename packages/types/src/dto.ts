@@ -125,7 +125,7 @@ export interface PublicProfileRequestPayload {
   bio?: string;
   profile: VerificationRequestPayload;
   links?: UpsertLinkPayload[];
-  turnstileToken: string;
+  turnstileToken?: string;
 }
 
 export interface PaginatedResult<T> {

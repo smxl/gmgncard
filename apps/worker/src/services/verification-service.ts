@@ -22,11 +22,14 @@ export class VerificationService {
     remoteIp?: string
   ): Promise<UserDTO> {
     const data = publicProfileRequestSchema.parse(payload);
-    await verifyTurnstileToken(
-      data.turnstileToken,
-      env.TURNSTILE_SECRET,
-      remoteIp
-    );
+    const shouldVerifyTurnstile =
+      env.TURNSTILE_SECRET && !['', 'dummy', 'disabled'].includes(env.TURNSTILE_SECRET);
+    if (shouldVerifyTurnstile) {
+      if (!data.turnstileToken) {
+        throw new HttpError(400, 'Turnstile token missing');
+      }
+      await verifyTurnstileToken(data.turnstileToken, env.TURNSTILE_SECRET, remoteIp);
+    }
 
     const normalizedHandle = data.handle.toLowerCase();
     const existingRecord = await this.userRepo.findUserRecord(

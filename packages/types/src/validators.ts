@@ -189,7 +189,7 @@ export const publicProfileRequestSchema = z.object({
   bio: z.string().max(280).optional(),
   profile: verificationRequestSchema,
   links: z.array(upsertLinkSchema).max(10).optional(),
-  turnstileToken: z.string().min(10)
+  turnstileToken: z.string().min(10).optional()
 });
 
 export const settingsUpdateSchema = z

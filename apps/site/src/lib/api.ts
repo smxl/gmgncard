@@ -10,7 +10,7 @@ export interface VerificationRequestBody {
   email: string;
   password: string;
   bio?: string;
-  turnstileToken: string;
+  turnstileToken?: string;
   profile: {
     pSize?: string;
     fSize?: string;

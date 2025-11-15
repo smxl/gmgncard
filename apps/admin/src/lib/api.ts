@@ -140,6 +140,21 @@ export const adminApi = {
       method: 'PUT',
       body: JSON.stringify(payload)
     }),
+  uploadAvatar: async (handle: string, file: File) => {
+    const token = authTokenGetter?.();
+    const form = new FormData();
+    form.append('avatar', file);
+    const response = await fetch(buildUrl(`/api/users/${handle}/avatar`), {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      body: form
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null);
+      throw new ApiError(payload?.error ?? '上传头像失败', response.status);
+    }
+    return response.json() as Promise<ApiResponse<{ avatarUrl: string }>>;
+  },
   updateFeatured: (handle: string, payload: { isFeatured?: boolean; adLabel?: string | null }) =>
     request<UserDTO>(`/api/users/${handle}/featured`, {
       method: 'PUT',

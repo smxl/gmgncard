@@ -2,14 +2,19 @@ import { useMutation } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { submitVerificationRequest, type VerificationRequestBody } from '../lib/api';
 import { TurnstileWidget } from '../components/TurnstileWidget';
+import {
+  POSITION_CHOICES,
+  type PositionChoice,
+  applyPositionChoice
+} from '@gmgncard/types';
 
 const emptyProfile = {
   pSize: '',
   fSize: '',
-  topPosition: '',
-  bottomPosition: '',
-  versPosition: '',
-  sidePreference: '',
+  topPosition: undefined as string | undefined,
+  bottomPosition: undefined as string | undefined,
+  versPosition: undefined as string | undefined,
+  sidePreference: undefined as string | undefined,
   hidePosition: false,
   notes: ''
 };
@@ -23,8 +28,13 @@ export const SelfServe = () => {
     bio: ''
   });
   const [profile, setProfile] = useState(emptyProfile);
+  const [positionChoice, setPositionChoice] = useState<PositionChoice>('none');
   const [links, setLinks] = useState([{ title: '', url: '' }]);
   const [turnstileToken, setTurnstileToken] = useState('');
+  const turnstileSiteKey =
+    (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) ?? '';
+  const turnstileEnabled =
+    Boolean(turnstileSiteKey && turnstileSiteKey !== 'dummy' && turnstileSiteKey !== 'disabled');
   const mutation = useMutation({
     mutationFn: (payload: VerificationRequestBody) => submitVerificationRequest(payload)
   });
@@ -35,11 +45,11 @@ export const SelfServe = () => {
         form.handle &&
           form.displayName &&
           form.email &&
-          form.password &&
-          turnstileToken &&
+        form.password &&
+        (!turnstileEnabled || turnstileToken) &&
           !mutation.isPending
       ),
-    [form, turnstileToken, mutation.isPending]
+    [form, turnstileToken, turnstileEnabled, mutation.isPending]
   );
 
   const handleLinkChange = (index: number, field: 'title' | 'url', value: string) => {
@@ -50,13 +60,18 @@ export const SelfServe = () => {
     setLinks((prev) => [...prev, { title: '', url: '' }]);
   };
 
+  const handlePositionChoice = (choice: PositionChoice) => {
+    setPositionChoice(choice);
+    setProfile((prev) => applyPositionChoice(choice, prev));
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!canSubmit) return;
     const cleanLinks = links.filter((link) => link.title && link.url);
     await mutation.mutateAsync({
       ...form,
-      turnstileToken,
+      turnstileToken: turnstileEnabled ? turnstileToken : undefined,
       profile: {
         ...profile,
         pSize: profile.pSize || undefined,
@@ -72,6 +87,7 @@ export const SelfServe = () => {
     });
     setForm({ handle: '', displayName: '', email: '', password: '', bio: '' });
     setProfile(emptyProfile);
+    setPositionChoice('none');
     setLinks([{ title: '', url: '' }]);
     setTurnstileToken('');
   };
@@ -135,16 +151,25 @@ export const SelfServe = () => {
           </label>
           <div className="grid md:grid-cols-3 gap-6">
             <label className="form-field">
-              <span>Top Size</span>
+              <span>Cock Size</span>
               <input value={profile.pSize} onChange={(event) => setProfile((prev) => ({ ...prev, pSize: event.target.value }))} />
             </label>
             <label className="form-field">
-              <span>Bottom Size</span>
+              <span>Foot Size</span>
               <input value={profile.fSize} onChange={(event) => setProfile((prev) => ({ ...prev, fSize: event.target.value }))} />
             </label>
             <label className="form-field">
-              <span>Vers Position</span>
-              <input value={profile.versPosition} onChange={(event) => setProfile((prev) => ({ ...prev, versPosition: event.target.value }))} />
+              <span>Position</span>
+              <select
+                value={positionChoice}
+                onChange={(event) => handlePositionChoice(event.target.value as PositionChoice)}
+              >
+                {POSITION_CHOICES.map((choice) => (
+                  <option key={choice} value={choice}>
+                    {choice === 'none' ? '未设置' : choice}
+                  </option>
+                ))}
+              </select>
             </label>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -173,16 +198,6 @@ export const SelfServe = () => {
               />
             </label>
           </div>
-          <div className="grid md:grid-cols-2 gap-6">
-            <label className="form-field">
-              <span>Top Position</span>
-              <input value={profile.topPosition} onChange={(event) => setProfile((prev) => ({ ...prev, topPosition: event.target.value }))} />
-            </label>
-            <label className="form-field">
-              <span>Bottom Position</span>
-              <input value={profile.bottomPosition} onChange={(event) => setProfile((prev) => ({ ...prev, bottomPosition: event.target.value }))} />
-            </label>
-          </div>
           <label className="form-field">
             <span>备注</span>
             <textarea
@@ -191,17 +206,6 @@ export const SelfServe = () => {
               onChange={(event) => setProfile((prev) => ({ ...prev, notes: event.target.value }))}
             />
           </label>
-          <div className="flex items-center gap-3">
-            <input
-              id="hide-position"
-              type="checkbox"
-              checked={profile.hidePosition}
-              onChange={(event) => setProfile((prev) => ({ ...prev, hidePosition: event.target.checked }))}
-            />
-            <label htmlFor="hide-position" className="text-sm text-slate-400">
-              隐藏 Position 信息，仅管理员可见
-            </label>
-          </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold">常用链接</h3>
@@ -224,10 +228,12 @@ export const SelfServe = () => {
               </div>
             ))}
           </div>
-          <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
-            <p className="text-xs text-slate-400 mb-2">验证码</p>
-            <TurnstileWidget onVerify={setTurnstileToken} />
-          </div>
+          {turnstileEnabled && (
+            <div className="bg-slate-900/70 border border-slate-800 rounded-2xl p-4">
+              <p className="text-xs text-slate-400 mb-2">验证码</p>
+              <TurnstileWidget onVerify={setTurnstileToken} siteKey={turnstileSiteKey} />
+            </div>
+          )}
           {mutation.isSuccess && (
             <p className="text-emerald-300 text-sm">
               提交成功，@{mutation.data?.handle ?? form.handle} 正在等待审核。你也可以使用注册的账号登录 Admin 查看进度。

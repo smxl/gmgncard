@@ -1,4 +1,4 @@
-import type { Hono } from 'hono';
+import type { Context, Hono } from 'hono';
 import { RESOURCE_IDS } from '@gmgncard/config';
 import type { AppBindings } from '../types';
 
@@ -13,6 +13,23 @@ const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <text x="50%" y="50%" fill="#0F172A" font-family="Inter, sans-serif" font-size="26" font-weight="700" text-anchor="middle" dominant-baseline="central">GC</text>
 </svg>`;
 
+const serveR2Object = async (c: Context<AppBindings>, key: string) => {
+  const bucket = c.env[RESOURCE_IDS.r2];
+  if (!bucket) {
+    return c.notFound();
+  }
+  const object = await bucket.get(key);
+  if (!object) {
+    return c.notFound();
+  }
+  return new Response(object.body, {
+    headers: {
+      'content-type': object.httpMetadata?.contentType ?? 'application/octet-stream',
+      'cache-control': 'public, max-age=14400'
+    }
+  });
+};
+
 export const registerStaticRoutes = (app: Hono<AppBindings>) => {
   app.get('/favicon.svg', (c) =>
     new Response(faviconSvg, {
@@ -23,21 +40,13 @@ export const registerStaticRoutes = (app: Hono<AppBindings>) => {
     })
   );
 
-  app.get('/cdn/qr/:handle/:asset', async (c) => {
-    const bucket = c.env[RESOURCE_IDS.r2];
-    if (!bucket) {
-      return c.notFound();
-    }
+  app.get('/cdn/qr/:handle/:asset', (c) => {
     const key = `qr/${c.req.param('handle')}/${c.req.param('asset')}`;
-    const object = await bucket.get(key);
-    if (!object) {
-      return c.notFound();
-    }
-    return new Response(object.body, {
-      headers: {
-        'content-type': object.httpMetadata?.contentType ?? 'image/png',
-        'cache-control': 'public, max-age=14400'
-      }
-    });
+    return serveR2Object(c, key);
+  });
+
+  app.get('/cdn/avatars/:handle/:asset', (c) => {
+    const key = `avatars/${c.req.param('handle')}/${c.req.param('asset')}`;
+    return serveR2Object(c, key);
   });
 };
