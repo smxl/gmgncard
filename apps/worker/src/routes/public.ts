@@ -24,17 +24,19 @@ const renderHandle = async (c: PublicContext, handle: string) => {
 };
 
 export const registerPublicRoutes = (app: Hono<AppBindings>) => {
-  app.get('/@:handle', (c) => {
-    const handle = c.req.param('handle');
-    if (!handle) {
-      throw new HttpError(400, 'Handle is required');
-    }
-    return renderHandle(c, handle);
-  });
+  const profilePaths = ['/card/@:handle', '/@:handle'];
+  for (const path of profilePaths) {
+    app.get(path, (c) => {
+      const handle = c.req.param('handle');
+      if (!handle) {
+        throw new HttpError(400, 'Handle is required');
+      }
+      return renderHandle(c, handle);
+    });
+  }
 
-  app.get('/:handle', (c) => {
-    const param = c.req.param('handle') ?? '';
-    const normalized = param.startsWith('@') ? param.slice(1) : param;
+  app.get('/card/:handle', (c) => {
+    const normalized = (c.req.param('handle') ?? '').replace(/^@/, '');
     if (!normalized) {
       throw new HttpError(400, 'Handle is required');
     }
