@@ -29,9 +29,8 @@ export interface HealthPayload {
   };
 }
 
-const API_BASE =
-  (import.meta.env.VITE_WORKER_BASE as string | undefined)?.replace(/\/$/, '') ??
-  '';
+const rawBase = (import.meta.env.VITE_WORKER_BASE as string | undefined) ?? '';
+const API_BASE = rawBase.trim();
 
 let authTokenGetter: (() => string | null) | null = null;
 
@@ -50,7 +49,21 @@ export class ApiError extends Error {
   }
 }
 
-const buildUrl = (path: string) => `${API_BASE}${path}`;
+const buildUrl = (path: string) => {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  if (!API_BASE) {
+    return normalizedPath;
+  }
+  const trimmedBase = API_BASE.endsWith('/') ? API_BASE.slice(0, -1) : API_BASE;
+  if (/^https?:\/\//i.test(trimmedBase)) {
+    return `${trimmedBase}${normalizedPath}`;
+  }
+  const prefixed = trimmedBase.startsWith('/') ? trimmedBase : `/${trimmedBase}`;
+  if (normalizedPath.startsWith(prefixed)) {
+    return normalizedPath;
+  }
+  return `${prefixed}${normalizedPath}`;
+};
 
 async function request<T>(
   path: string,

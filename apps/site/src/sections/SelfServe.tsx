@@ -109,7 +109,7 @@ export const SelfServe = () => {
               <input
                 value={form.handle}
                 onChange={(event) => setForm((prev) => ({ ...prev, handle: event.target.value.toLowerCase() }))}
-                placeholder="例如 alice"
+                placeholder="例如 gayman"
                 required
               />
             </label>
@@ -216,11 +216,13 @@ export const SelfServe = () => {
             {links.map((link, index) => (
               <div key={`link-${index}`} className="grid md:grid-cols-2 gap-4">
                 <input
+                  className="input-muted"
                   placeholder="标题，例如 Instagram"
                   value={link.title}
                   onChange={(event) => handleLinkChange(index, 'title', event.target.value)}
                 />
                 <input
+                  className="input-muted"
                   placeholder="https://"
                   value={link.url}
                   onChange={(event) => handleLinkChange(index, 'url', event.target.value)}
