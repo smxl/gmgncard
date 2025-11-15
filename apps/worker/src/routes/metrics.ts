@@ -15,7 +15,7 @@ export const registerMetricsRoutes = (app: Hono<AppBindings>) => {
     }
 
     if (!c.env.GMGNCARD_QUEUE) {
-      throw new HttpError(503, 'Metrics queue unavailable');
+      return withRequestMeta(c, { queued: false });
     }
 
     await c.env.GMGNCARD_QUEUE.send({

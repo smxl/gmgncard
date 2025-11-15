@@ -117,10 +117,9 @@ const handleQueueBatch = async (batch: MessageBatch<QueueJob>, env: AppBindings[
 };
 
 const handleScheduled = async (_: ScheduledController, env: AppBindings['Bindings']) => {
-  if (!env.GMGNCARD_QUEUE) {
-    return;
+  if (env.GMGNCARD_QUEUE) {
+    await env.GMGNCARD_QUEUE.send({ type: 'daily-backup' });
   }
-  await env.GMGNCARD_QUEUE.send({ type: 'daily-backup' });
 };
 
 export default {

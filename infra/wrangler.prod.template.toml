@@ -1,5 +1,5 @@
 name = "gmgncard-worker"
-main = "../apps/worker/src/index.ts"
+main = "./src/index.ts"
 compatibility_date = "2024-06-20"
 
 [vars]
@@ -24,12 +24,5 @@ id = "${KV_NAMESPACE_ID}"
 binding = "GMGNCARD_R2"
 bucket_name = "${R2_BUCKET_NAME}"
 
-[[queues.producers]]
-queue = "gmgncard-jobs"
-binding = "GMGNCARD_QUEUE"
-
-[[queues.consumers]]
-queue = "gmgncard-jobs"
-
 [triggers]
-crons = ["0 6 * * *"]
+crons = []

@@ -36,21 +36,22 @@ pnpm migrate:local  # 在本地环境执行（带 --local）
 | `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET` | 表单验证码（可选） | Cloudflare Dashboard → Turnstile 创建站点获得；若暂未启用，设为 `disabled` |
 | `CF_ACCESS_AUD` / `CF_ACCESS_TEAM` | Cloudflare Access 校验（可选） | Access 应用详情页复制 AUD 与 Team Domain；若未启用 Access，可置空 |
 | `CORS_ORIGINS` | 允许访问 Worker API 的来源 | 用逗号分隔的域名，例 `https://admin.example.com,https://app.example.com` |
-| `D1_DATABASE_ID` | D1 生产库 ID | Cloudflare Dashboard → D1 复制 `database_id`，写入 `wrangler.prod.toml` |
-| `KV_NAMESPACE_ID` | KV Namespace ID | Dashboard → KV 复制 ID，写入 `wrangler.prod.toml` |
-| `R2_BUCKET_NAME` | R2 bucket 名称 | Dashboard → R2 复制 bucket 名，写入 `wrangler.prod.toml` |
+| `D1_DATABASE_ID` | D1 生产库 ID | Cloudflare Dashboard → D1 复制 `database_id`，部署时注入模板 |
+| `KV_NAMESPACE_ID` | KV Namespace ID | Dashboard → KV 复制 ID，部署时注入模板 |
+| `R2_BUCKET_NAME` | R2 bucket 名称 | Dashboard → R2 复制 bucket 名，部署时注入模板 |
 
-> 可在 `infra/wrangler.prod.toml` 中使用 `${ENV_VAR}` 占位，部署前通过 shell 或 CI 注入环境变量。
+> 可在 `infra/wrangler.prod.template.toml` 中使用 `${ENV_VAR}` 占位，部署前通过 shell 或 CI 注入环境变量。
 
 ## 5. 发布 Worker
 
 ```bash
-pnpm deploy:worker:prod  # 调用 scripts/deploy-prod.sh
+pnpm deploy:worker:prod  # 调用 scripts/deploy-prod.sh，会基于模板生成 prod 配置
 # 或手动：
-# pnpm build && wrangler deploy --config infra/wrangler.prod.toml
+# envsubst < infra/wrangler.prod.template.toml > /tmp/wrangler.prod.toml
+# wrangler deploy --config /tmp/wrangler.prod.toml
 ```
 
-`scripts/deploy-prod.sh` 会先跑 `pnpm build` 再加载 `infra/wrangler.prod.toml` 部署。确保执行前已在终端导出上表中的环境变量。
+`scripts/deploy-prod.sh` 会先跑 `pnpm build`，通过 `envsubst` 将环境变量渲染到临时 prod 配置，再执行部署。确保执行前已在终端导出上表中的环境变量。
 
 ## 6. 部署 Admin 与 Site
 
