@@ -18,6 +18,7 @@ export const SelfLinksPanel = () => {
     order: 0,
     isHidden: false
   });
+  const [editingLink, setEditingLink] = useState<(UpsertLinkPayload & { id: number }) | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const invalidate = async () => {
@@ -82,6 +83,28 @@ export const SelfLinksPanel = () => {
 
   const links = linksQuery.data?.data ?? [];
 
+  const handleStartEdit = (link: LinkDTO) => {
+    setEditingLink({ id: link.id, ...linkToPayload(link) });
+  };
+
+  const handleEditChange = (name: keyof UpsertLinkPayload, value: string | number | boolean) => {
+    setEditingLink((prev) => (prev ? { ...prev, [name]: value } : prev));
+  };
+
+  const handleEditSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!editingLink) return;
+    await updateMutation.mutateAsync({ linkId: editingLink.id, payload: editingLink });
+  };
+
+  const handleReorder = async (link: LinkDTO, delta: number) => {
+    const nextOrder = (link.order ?? 0) + delta;
+    await updateMutation.mutateAsync({
+      linkId: link.id,
+      payload: { ...linkToPayload(link), order: nextOrder }
+    });
+  };
+
   return (
     <Card title="我的链接" description="直接管理 @handle 页面上的按钮">
       {!token && <p className="error">请先登录。</p>}
@@ -98,6 +121,26 @@ export const SelfLinksPanel = () => {
               </div>
               <div className="link-actions">
                 <StatusBadge tone={link.isHidden ? 'warning' : 'success'} label={link.isHidden ? '隐藏' : '显示'} />
+                <div className="reorder-controls">
+                  <button
+                    className="ghost-btn"
+                    type="button"
+                    onClick={() => handleReorder(link, -1)}
+                    disabled={!token || updateMutation.isPending}
+                    title="向前"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    className="ghost-btn"
+                    type="button"
+                    onClick={() => handleReorder(link, 1)}
+                    disabled={!token || updateMutation.isPending}
+                    title="向后"
+                  >
+                    ↓
+                  </button>
+                </div>
                 <button
                   className="ghost-btn"
                   type="button"
@@ -105,6 +148,14 @@ export const SelfLinksPanel = () => {
                   disabled={!token || toggleMutation.isPending}
                 >
                   {link.isHidden ? '设为显示' : '设为隐藏'}
+                </button>
+                <button
+                  className="ghost-btn"
+                  type="button"
+                  onClick={() => handleStartEdit(link)}
+                  disabled={!token}
+                >
+                  编辑
                 </button>
                 <button
                   className="ghost-btn"
@@ -120,6 +171,54 @@ export const SelfLinksPanel = () => {
         </ul>
       ) : (
         <p className="muted">暂无链接，立即添加一个吧。</p>
+      )}
+
+      {editingLink && (
+        <form className="link-form edit-form" onSubmit={handleEditSubmit}>
+          <h4>编辑链接</h4>
+          <label>
+            标题
+            <input
+              value={editingLink.title}
+              onChange={(event) => handleEditChange('title', event.target.value)}
+              required
+            />
+          </label>
+          <label>
+            URL
+            <input
+              value={editingLink.url}
+              onChange={(event) => handleEditChange('url', event.target.value)}
+              required
+            />
+          </label>
+          <label>
+            排序
+            <input
+              type="number"
+              value={editingLink.order ?? 0}
+              onChange={(event) =>
+                handleEditChange('order', Number.parseInt(event.target.value, 10) || 0)
+              }
+            />
+          </label>
+          <label className="checkbox">
+            <input
+              type="checkbox"
+              checked={editingLink.isHidden ?? false}
+              onChange={(event) => handleEditChange('isHidden', event.target.checked)}
+            />
+            隐藏
+          </label>
+          <div className="form-actions">
+            <button type="submit" disabled={updateMutation.isPending}>
+              {updateMutation.isPending ? '保存中…' : '保存修改'}
+            </button>
+            <button type="button" className="ghost-btn" onClick={() => setEditingLink(null)}>
+              取消
+            </button>
+          </div>
+        </form>
       )}
 
       <form className="link-form" onSubmit={handleSubmit}>
@@ -166,3 +265,12 @@ export const SelfLinksPanel = () => {
     </Card>
   );
 };
+  const updateMutation = useMutation({
+    mutationFn: ({ linkId, payload }: { linkId: number; payload: UpsertLinkPayload }) =>
+      adminApi.updateLink(handle, linkId, payload),
+    onSuccess: async () => {
+      setFeedback('已更新链接');
+      setEditingLink(null);
+      await invalidate();
+    }
+  });

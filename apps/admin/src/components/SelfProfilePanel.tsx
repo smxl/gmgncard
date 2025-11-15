@@ -108,7 +108,7 @@ export const SelfProfilePanel = () => {
     mutationFn: (payload: VerificationRequestPayload) => adminApi.submitProfile(handle!, payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['user-profile', handle] });
-      setSuccess('已提交审核，管理员通过后会展示验证标识。');
+      setSuccess('已提交审核, 联系管理员认证通过后会展示验证标识, https://t.me/xpticketbot?start=start');
       setFormError(null);
     }
   });
